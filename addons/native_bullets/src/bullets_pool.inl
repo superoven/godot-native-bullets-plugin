@@ -112,6 +112,7 @@ void AbstractBulletsPool<Kit, BulletType>::_init(Node* parent_hint, RID shared_a
 		bullet->item_rid = VisualServer::get_singleton()->canvas_item_create();
 		VisualServer::get_singleton()->canvas_item_set_parent(bullet->item_rid, canvas_item);
 		VisualServer::get_singleton()->canvas_item_set_material(bullet->item_rid, kit->material->get_rid());
+		VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, kit->base_modulate_color);
 
 		if(collisions_enabled) {
 			RID shared_shape_rid = kit->collision_shape->get_rid();
@@ -138,7 +139,7 @@ void AbstractBulletsPool<Kit, BulletType>::_init(Node* parent_hint, RID shared_a
 			default: // None or other values
 				break;
 		}
-		VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, color);
+		VisualServer::get_singleton()->canvas_item_set_self_modulate(bullet->item_rid, color);
 
 		_init_bullet(bullet);
 	}

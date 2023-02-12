@@ -49,6 +49,8 @@ public:
 	Rect2 active_rect;
 	// If enabled, bullets will auto-rotate based on their direction of travel.
 	bool rotate = false;
+	// Allows you to set the CanvasItem modulate color for the whole bullet kit
+	Color base_modulate_color;
 	// Allows the ability to have a unique-ish value in each instance of the bullet material.
 	// Can be used to offset the bullets animation by a unique amount to avoid having them animate in sync.
 	int32_t unique_modulate_component = 0;
@@ -82,6 +84,10 @@ public:
 		register_property<BulletKit, bool>("rotate", &BulletKit::rotate, false,
 			GODOT_METHOD_RPC_MODE_DISABLED, (godot_property_usage_flags)(GODOT_PROPERTY_USAGE_DEFAULT | GODOT_PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
 			GODOT_PROPERTY_HINT_NONE);
+
+		register_property<BulletKit, Color>("base_modulate_color", &BulletKit::base_modulate_color,
+			Color(1.0, 1.0, 1.0, 1.0), GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Color");
+
 		register_property<BulletKit, int32_t>("unique_modulate_component", &BulletKit::unique_modulate_component, 0,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_ENUM, "None,Red,Green,Blue,Alpha");
 		register_property<BulletKit, Variant>("data", &BulletKit::data, Dictionary(),

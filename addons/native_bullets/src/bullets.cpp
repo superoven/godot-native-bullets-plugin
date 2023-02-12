@@ -188,11 +188,11 @@ void Bullets::mount(Node* bullets_environment) {
 			//RID actual_parent_canvas = default_parent_canvas;
 
 			NodePath parent_path = parents_paths[0];//[kit_index_in_node];
-			Godot::print("Parent hint path is {0}", parent_path);
+			// Godot::print("Parent hint path is {0}", parent_path);
 			if (!parent_path.is_empty()) {
-				Godot::print("Parent hint path is not empty");
+				// Godot::print("Parent hint path is not empty");
 				parent_node_hint = bullets_environment->get_node(parent_path);
-				Godot::print("Viewport node is {0}", parent_node_hint);
+				// Godot::print("Viewport node is {0}", parent_node_hint);
 				// if (viewport_node != nullptr) {
 				// 	actual_viewport = viewport_node;
 					// CanvasItem* parent_canvas = Object::cast_to<CanvasItem>(parent_node);
