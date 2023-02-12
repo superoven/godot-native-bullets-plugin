@@ -34,14 +34,15 @@ void AbstractBulletsPool<Kit, BulletType>::_disable_bullet(BulletType* bullet) {
 
 template <class Kit, class BulletType>
 bool AbstractBulletsPool<Kit, BulletType>::_process_bullet(BulletType* bullet, float delta) {
-	bullet->transform.set_origin(bullet->transform.get_origin() + bullet->velocity * delta);
-
-	if(!active_rect.has_point(bullet->transform.get_origin())) {
-		return true;
-	}
-
-	bullet->lifetime += delta;
+	ERR_PRINT("AbstractBulletKit needs an implementation of _process_bullet!");
 	return false;
+}
+
+template <class Kit, class BulletType>
+void AbstractBulletsPool<Kit, BulletType>::_process_acceleration(BulletType* bullet, float delta) {
+	bullet->velocity += kit->acceleration_basis_vector * kit->acceleration_speed * delta;
+	// TODO: Implement max clamping
+	// TODO: See if there is a way to control the acceleration data on a bullet itself
 }
 
 //-- END Default "standard" implementation.

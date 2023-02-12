@@ -86,6 +86,7 @@ class FollowingBulletsPool : public AbstractBulletsPool<FollowingBulletKit, Foll
 			// Apply the rotation, capped to the max turning speed.
 			bullet->velocity = bullet->velocity.rotated(Math::sign(rotation_to_target) * rotation_value);
 		}
+		_process_acceleration(bullet, delta);
 		// Apply velocity.
 		bullet->transform.set_origin(bullet->transform.get_origin() + bullet->velocity * delta);
 

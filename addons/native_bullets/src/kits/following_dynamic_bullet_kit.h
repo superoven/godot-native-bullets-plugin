@@ -171,6 +171,7 @@ class FollowingDynamicBulletsPool : public AbstractBulletsPool<FollowingDynamicB
 			bullet->velocity = bullet->velocity.rotated(Math::sign(rotation_to_target) * rotation_value);
 		}
 
+		_process_acceleration(bullet, delta);
 		bullet->transform.set_origin(bullet->transform.get_origin() + bullet->velocity * delta);
 
 		if(!active_rect.has_point(bullet->transform.get_origin())) {
