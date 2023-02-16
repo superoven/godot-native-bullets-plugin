@@ -4,6 +4,8 @@
 #include <Godot.hpp>
 #include <Transform2D.hpp>
 
+#include <limits>
+
 using namespace godot;
 
 
@@ -25,6 +27,12 @@ public:
 	int32_t shape_index = -1;
 	Transform2D transform;
 	Vector2 velocity;
+	// Allows the bullet velocity to accelerate in this direction
+	Vector2 acceleration_basis_vector;
+	// Accelation Speed along the acceleration_basis_vector
+	float_t acceleration_speed = 0.0;
+	// Maximum Speed we can accelerate to
+	float_t max_speed = std::numeric_limits<float>::max();
 	float lifetime;
 	Variant data;
 
@@ -46,6 +54,11 @@ public:
 
 		register_property<Bullet, Transform2D>("transform", &Bullet::transform, Transform2D());
 		register_property<Bullet, Vector2>("velocity", &Bullet::velocity, Vector2());
+
+		register_property<Bullet, Vector2>("acceleration_basis_vector", &Bullet::acceleration_basis_vector, Vector2());
+		register_property<Bullet, float_t>("acceleration_speed", &Bullet::acceleration_speed, 0.0f);
+		register_property<Bullet, float_t>("max_speed", &Bullet::max_speed, 0.0f);
+
 		register_property<Bullet, float>("lifetime", &Bullet::lifetime, 0.0f);
 		register_property<Bullet, Variant>("data", &Bullet::data, Variant());
 	}

@@ -400,6 +400,23 @@ void Bullets::set_bullet_property(Variant id, String property, Variant value) {
 	}
 }
 
+// int32_t Bullets::get_active_bullets(Ref<BulletKit> kit) {
+// 	if(kits_to_set_pool_indices.has(kit)) {
+// 		PoolIntArray set_pool_indices = kits_to_set_pool_indices[kit];
+// 		return pool_sets[set_pool_indices[0]].pools[set_pool_indices[1]].pool->get_active_bullets();
+// 	}
+// 	return 0;
+// }
+
+// void Bullets::set_bullet_property(Variant id, String property, Variant value) {
+// 	PoolIntArray bullet_id = id.operator PoolIntArray();
+
+// 	int32_t pool_index = _get_pool_index(bullet_id[2], bullet_id[0]);
+// 	if(pool_index >= 0) {
+// 		pool_sets[bullet_id[2]].pools[pool_index].pool->set_bullet_property(BulletID(bullet_id[0], bullet_id[1], bullet_id[2]), property, value);
+// 	}
+// }
+
 Variant Bullets::get_bullet_property(Variant id, String property) {
 	PoolIntArray bullet_id = id.operator PoolIntArray();
 

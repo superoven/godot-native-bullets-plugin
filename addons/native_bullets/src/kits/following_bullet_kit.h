@@ -51,7 +51,7 @@ public:
 		register_property<FollowingBulletKit, Ref<Texture>>("texture", &FollowingBulletKit::texture, Ref<Texture>(), 
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Texture");
 		register_property<FollowingBulletKit, float>("bullets_turning_speed", &FollowingBulletKit::bullets_turning_speed, 1.0f, 
-			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RANGE, "0.0,128.0");
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RANGE, "0.0,5000.0");
 		
 		BULLET_KIT_REGISTRATION(FollowingBulletKit, FollowingBullet)
 	}
@@ -80,6 +80,7 @@ class FollowingBulletsPool : public AbstractBulletsPool<FollowingBulletKit, Foll
 		if(bullet->target_node != nullptr) {
 			// Find the rotation to the target node.
 			Vector2 to_target = bullet->target_node->get_global_position() - bullet->transform.get_origin();
+			bullet->acceleration_basis_vector = to_target;
 			float rotation_to_target = bullet->velocity.angle_to(to_target);
 			float rotation_value = Math::min(kit->bullets_turning_speed * delta, std::abs(rotation_to_target));
 

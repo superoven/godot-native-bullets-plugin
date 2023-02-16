@@ -40,9 +40,8 @@ bool AbstractBulletsPool<Kit, BulletType>::_process_bullet(BulletType* bullet, f
 
 template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::_process_acceleration(BulletType* bullet, float delta) {
-	bullet->velocity += kit->acceleration_basis_vector * kit->acceleration_speed * delta;
-	// TODO: Implement max clamping
-	// TODO: See if there is a way to control the acceleration data on a bullet itself
+	bullet->velocity += bullet->acceleration_basis_vector * bullet->acceleration_speed * delta;
+	bullet->velocity = bullet->velocity.clamped(bullet->max_speed);
 }
 
 //-- END Default "standard" implementation.

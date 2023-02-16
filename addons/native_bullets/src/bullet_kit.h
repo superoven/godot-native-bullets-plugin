@@ -52,12 +52,12 @@ public:
 	bool rotate = false;
 	// Allows you to set the CanvasItem modulate color for the whole bullet kit
 	Color base_modulate_color;
-	// Allows the bullet velocity to accelerate in this direction
-	Vector2 acceleration_basis_vector;
-	// Accelation Speed along the acceleration_basis_vector
-	float_t acceleration_speed = 0.0;
-	// Maximum Speed we can accelerate to
-	float_t max_speed = std::numeric_limits<float>::max();
+	// // Allows the bullet velocity to accelerate in this direction
+	// Vector2 acceleration_basis_vector;
+	// // Accelation Speed along the acceleration_basis_vector
+	// float_t acceleration_speed = 0.0;
+	// // Maximum Speed we can accelerate to
+	// float_t max_speed = std::numeric_limits<float>::max();
 	// Allows the ability to have a unique-ish value in each instance of the bullet material.
 	// Can be used to offset the bullets animation by a unique amount to avoid having them animate in sync.
 	int32_t unique_modulate_component = 0;
@@ -93,12 +93,12 @@ public:
 			GODOT_PROPERTY_HINT_NONE);
 		register_property<BulletKit, Color>("base_modulate_color", &BulletKit::base_modulate_color,
 			Color(1.0, 1.0, 1.0, 1.0), GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Color");
-		register_property<BulletKit, Vector2>("acceleration_basis_vector", &BulletKit::acceleration_basis_vector,
-			Vector2(), GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Vector2");
-		register_property<BulletKit, float_t>("acceleration_speed", &BulletKit::acceleration_speed,
-			0.0, GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "float");
-		register_property<BulletKit, float_t>("max_speed", &BulletKit::max_speed,
-			std::numeric_limits<float>::max(), GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "float");
+		// register_property<BulletKit, Vector2>("acceleration_basis_vector", &BulletKit::acceleration_basis_vector,
+		// 	Vector2(), GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Vector2");
+		// register_property<BulletKit, float_t>("acceleration_speed", &BulletKit::acceleration_speed,
+		// 	0.0, GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "float");
+		// register_property<BulletKit, float_t>("max_speed", &BulletKit::max_speed,
+		// 	std::numeric_limits<float>::max(), GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "float");
 		register_property<BulletKit, int32_t>("unique_modulate_component", &BulletKit::unique_modulate_component, 0,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_ENUM, "None,Red,Green,Blue,Alpha");
 		register_property<BulletKit, Variant>("data", &BulletKit::data, Dictionary(),
