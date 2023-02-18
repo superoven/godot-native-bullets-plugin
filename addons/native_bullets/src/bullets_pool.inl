@@ -198,7 +198,7 @@ int32_t AbstractBulletsPool<Kit, BulletType>::_process(float delta) {
 }
 
 template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary properties) {
+BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary properties) {
 	if(available_bullets > 0) {
 		available_bullets -= 1;
 		active_bullets += 1;
@@ -218,7 +218,9 @@ void AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary properties) {
 			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->transform);
 
 		_enable_bullet(bullet);
+		return BulletID(bullet->shape_index, bullet->cycle, set_index);
 	}
+	return BulletID(-1, -1, -1);
 }
 
 template <class Kit, class BulletType>
@@ -229,8 +231,12 @@ BulletID AbstractBulletsPool<Kit, BulletType>::obtain_bullet() {
 
 		BulletType* bullet = bullets[available_bullets];
 
+		VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->transform);
 		if(collisions_enabled)
 			Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, false);
+			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->transform);
+		
+		// if(collisions_enabled)
 
 		_enable_bullet(bullet);
 
@@ -313,6 +319,45 @@ void AbstractBulletsPool<Kit, BulletType>::set_bullet_property(BulletID id, Stri
 			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->transform);
 			if(collisions_enabled)
 				Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->transform);
+		}
+	}
+}
+
+template <class Kit, class BulletType>
+void AbstractBulletsPool<Kit, BulletType>::apply_bullet_properties(BulletID id, Dictionary properties) {
+	if(is_bullet_valid(id)) {
+		int32_t bullet_index = shapes_to_indices[id.index - starting_shape_index];
+		BulletType* bullet = bullets[bullet_index];
+		Array keys = properties.keys();
+		for(int32_t i = 0; i < keys.size(); i++) {
+			String key = keys[i];
+			Variant value = properties[keys[i]];
+			bullet->set(key, value);
+			if(key == "transform") {
+				VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, value);
+				if(collisions_enabled)
+					Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, value);
+			}
+		}
+	} else {
+		Godot::print("INSIDE C++: Bullet wasn't valid");
+	}
+}
+
+template <class Kit, class BulletType>
+void AbstractBulletsPool<Kit, BulletType>::apply_all(Dictionary properties) {
+	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
+		BulletType* bullet = bullets[i];
+		Array keys = properties.keys();
+		for(int32_t i = 0; i < keys.size(); i++) {
+			String key = keys[i];
+			Variant value = properties[keys[i]];
+			bullet->set(key, value);
+			if(key == "transform") {
+				VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, value);
+				if(collisions_enabled)
+					Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, value);
+			}
 		}
 	}
 }

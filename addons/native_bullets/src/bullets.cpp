@@ -40,6 +40,8 @@ void Bullets::_register_methods() {
 
 	register_method("set_bullet_property", &Bullets::set_bullet_property);
 	register_method("get_bullet_property", &Bullets::get_bullet_property);
+	register_method("apply_bullet_properties", &Bullets::apply_bullet_properties);
+	register_method("apply_bullet_properties_to_kit", &Bullets::apply_bullet_properties_to_kit);
 }
 
 Bullets::Bullets() { }
@@ -246,7 +248,7 @@ Node* Bullets::get_bullets_environment() {
 	return bullets_environment;
 }
 
-bool Bullets::spawn_bullet(Ref<BulletKit> kit, Dictionary properties) {
+Variant Bullets::spawn_bullet(Ref<BulletKit> kit, Dictionary properties) {
 	if(available_bullets > 0 && kits_to_set_pool_indices.has(kit)) {
 		PoolIntArray set_pool_indices = kits_to_set_pool_indices[kit].operator PoolIntArray();
 		BulletsPool* pool = pool_sets[set_pool_indices[0]].pools[set_pool_indices[1]].pool.get();
@@ -255,11 +257,15 @@ bool Bullets::spawn_bullet(Ref<BulletKit> kit, Dictionary properties) {
 			available_bullets -= 1;
 			active_bullets += 1;
 
-			pool->spawn_bullet(properties);
-			return true;
+			BulletID bullet_id = pool->spawn_bullet(properties);
+			PoolIntArray to_return = invalid_id;
+			to_return.set(0, bullet_id.index);
+			to_return.set(1, bullet_id.cycle);
+			to_return.set(2, bullet_id.set);
+			return to_return;
 		}
 	}
-	return false;
+	return invalid_id;
 }
 
 Variant Bullets::obtain_bullet(Ref<BulletKit> kit) {
@@ -400,22 +406,20 @@ void Bullets::set_bullet_property(Variant id, String property, Variant value) {
 	}
 }
 
-// int32_t Bullets::get_active_bullets(Ref<BulletKit> kit) {
-// 	if(kits_to_set_pool_indices.has(kit)) {
-// 		PoolIntArray set_pool_indices = kits_to_set_pool_indices[kit];
-// 		return pool_sets[set_pool_indices[0]].pools[set_pool_indices[1]].pool->get_active_bullets();
-// 	}
-// 	return 0;
-// }
+void Bullets::apply_bullet_properties(Variant id, Dictionary properties) {
+	PoolIntArray bullet_id = id.operator PoolIntArray();
+	int32_t pool_index = _get_pool_index(bullet_id[2], bullet_id[0]);
+	if(pool_index >= 0) {
+		pool_sets[bullet_id[2]].pools[pool_index].pool->apply_bullet_properties(BulletID(bullet_id[0], bullet_id[1], bullet_id[2]), properties);
+	}
+}
 
-// void Bullets::set_bullet_property(Variant id, String property, Variant value) {
-// 	PoolIntArray bullet_id = id.operator PoolIntArray();
-
-// 	int32_t pool_index = _get_pool_index(bullet_id[2], bullet_id[0]);
-// 	if(pool_index >= 0) {
-// 		pool_sets[bullet_id[2]].pools[pool_index].pool->set_bullet_property(BulletID(bullet_id[0], bullet_id[1], bullet_id[2]), property, value);
-// 	}
-// }
+void Bullets::apply_bullet_properties_to_kit(Ref<BulletKit> kit, Dictionary properties) {
+	if(kits_to_set_pool_indices.has(kit)) {
+		PoolIntArray set_pool_indices = kits_to_set_pool_indices[kit];
+		return pool_sets[set_pool_indices[0]].pools[set_pool_indices[1]].pool->apply_all(properties);
+	}
+}
 
 Variant Bullets::get_bullet_property(Variant id, String property) {
 	PoolIntArray bullet_id = id.operator PoolIntArray();
