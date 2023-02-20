@@ -82,6 +82,7 @@ protected:
 	virtual inline void _process_acceleration(BulletType* bullet, float delta);
 
 	inline void _release_bullet(int32_t index);
+	virtual void _apply_properties(BulletType* bullet, Dictionary properties);
 
 public:
 	AbstractBulletsPool() {}

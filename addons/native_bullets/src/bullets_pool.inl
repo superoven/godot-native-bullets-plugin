@@ -328,19 +328,24 @@ void AbstractBulletsPool<Kit, BulletType>::apply_bullet_properties(BulletID id, 
 	if(is_bullet_valid(id)) {
 		int32_t bullet_index = shapes_to_indices[id.index - starting_shape_index];
 		BulletType* bullet = bullets[bullet_index];
-		Array keys = properties.keys();
-		for(int32_t i = 0; i < keys.size(); i++) {
-			String key = keys[i];
-			Variant value = properties[keys[i]];
-			bullet->set(key, value);
-			if(key == "transform") {
-				VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, value);
-				if(collisions_enabled)
-					Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, value);
-			}
-		}
+		this->_apply_properties(bullet, properties);
 	} else {
 		Godot::print("INSIDE C++: Bullet wasn't valid");
+	}
+}
+
+template <class Kit, class BulletType>
+void AbstractBulletsPool<Kit, BulletType>::_apply_properties(BulletType* bullet, Dictionary properties) {
+	Array keys = properties.keys();
+	for(int32_t i = 0; i < keys.size(); i++) {
+		String key = keys[i];
+		Variant value = properties[keys[i]];
+		bullet->set(key, value);
+		if(key == "transform") {
+			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, value);
+			if(collisions_enabled)
+				Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, value);
+		}
 	}
 }
 
@@ -348,17 +353,7 @@ template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::apply_all(Dictionary properties) {
 	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
 		BulletType* bullet = bullets[i];
-		Array keys = properties.keys();
-		for(int32_t i = 0; i < keys.size(); i++) {
-			String key = keys[i];
-			Variant value = properties[keys[i]];
-			bullet->set(key, value);
-			if(key == "transform") {
-				VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, value);
-				if(collisions_enabled)
-					Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, value);
-			}
-		}
+		this->_apply_properties(bullet, properties);
 	}
 }
 
