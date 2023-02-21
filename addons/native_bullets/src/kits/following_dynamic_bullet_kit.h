@@ -62,6 +62,7 @@ public:
 	float lifetime_curves_span = 1.0f;
 	float distance_curves_span = 128.0f;
 	bool lifetime_curves_loop = true;
+	bool free_after_lifetime = false;
 	int32_t speed_control_mode = 0;
 	Ref<Curve> speed_multiplier;
 	int32_t turning_speed_control_mode = 0;
@@ -75,6 +76,8 @@ public:
 		register_property<FollowingDynamicBulletKit, float>("distance_curves_span", &FollowingDynamicBulletKit::distance_curves_span, 128.0f,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RANGE, "0.001,65536.0");
 		register_property<FollowingDynamicBulletKit, bool>("lifetime_curves_loop", &FollowingDynamicBulletKit::lifetime_curves_loop, true,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<FollowingDynamicBulletKit, bool>("free_after_lifetime", &FollowingDynamicBulletKit::free_after_lifetime, false,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
 		register_property<FollowingDynamicBulletKit, int32_t>("speed_control_mode", &FollowingDynamicBulletKit::speed_control_mode, 0,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_ENUM,
@@ -184,6 +187,10 @@ class FollowingDynamicBulletsPool : public AbstractBulletsPool<FollowingDynamicB
 		}
 		// Bullet is still alive, increase its lifetime.
 		bullet->lifetime += delta;
+		// If bullet should free itself after it's lifetime, do it
+		if(kit->free_after_lifetime && bullet->lifetime > kit->lifetime_curves_span) {
+			return true;
+		}
 		// Return false if the bullet should not be deleted yet.
 		return false;
 	}

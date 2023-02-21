@@ -14,11 +14,11 @@ using namespace godot;
 class DynamicBullet : public Bullet {
 	GODOT_CLASS(DynamicBullet, Bullet)
 public:
-	Transform2D starting_trasform;
+	Transform2D starting_transform;
 	float starting_speed;
 
 	void set_transform(Transform2D transform) {
-		starting_trasform = transform;
+		starting_transform = transform;
 		this->transform = transform;
 	}
 
@@ -41,8 +41,8 @@ public:
 		register_property<DynamicBullet, Transform2D>("transform",
 			&DynamicBullet::set_transform,
 			&DynamicBullet::get_transform, Transform2D());
-		register_property<DynamicBullet, Transform2D>("starting_trasform",
-			&DynamicBullet::starting_trasform, Transform2D());
+		register_property<DynamicBullet, Transform2D>("starting_transform",
+			&DynamicBullet::starting_transform, Transform2D());
 		register_property<DynamicBullet, Vector2>("velocity",
 			&DynamicBullet::set_velocity,
 			&DynamicBullet::get_velocity, Vector2());
@@ -60,8 +60,10 @@ public:
 	Ref<Texture> texture;
 	float lifetime_curves_span = 1.0f;
 	bool lifetime_curves_loop = true;
+	bool free_after_lifetime = false;
 	Ref<Curve> speed_multiplier_over_lifetime;
 	Ref<Curve> rotation_offset_over_lifetime;
+	Ref<Curve> alpha_over_lifetime;
 
 	static void _register_methods() {
 		register_property<DynamicBulletKit, Ref<Texture>>("texture", &DynamicBulletKit::texture, Ref<Texture>(), 
@@ -70,9 +72,13 @@ public:
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RANGE, "0.001,256.0");
 		register_property<DynamicBulletKit, bool>("lifetime_curves_loop", &DynamicBulletKit::lifetime_curves_loop, true,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<DynamicBulletKit, bool>("free_after_lifetime", &DynamicBulletKit::free_after_lifetime, false,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
 		register_property<DynamicBulletKit, Ref<Curve>>("speed_multiplier_over_lifetime", &DynamicBulletKit::speed_multiplier_over_lifetime, Ref<Curve>(), 
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
 		register_property<DynamicBulletKit, Ref<Curve>>("rotation_offset_over_lifetime", &DynamicBulletKit::rotation_offset_over_lifetime, Ref<Curve>(), 
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
+		register_property<DynamicBulletKit, Ref<Curve>>("alpha_over_lifetime", &DynamicBulletKit::alpha_over_lifetime, Ref<Curve>(), 
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
 		
 		BULLET_KIT_REGISTRATION(DynamicBulletKit, DynamicBullet)
@@ -110,9 +116,15 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 		}
 		if(kit->rotation_offset_over_lifetime.is_valid()) {
 			float rotation_offset = kit->rotation_offset_over_lifetime->interpolate(adjusted_lifetime);
-			float absolute_rotation = bullet->starting_trasform.get_rotation() + rotation_offset;
+			float absolute_rotation = bullet->starting_transform.get_rotation() + rotation_offset;
 
 			bullet->velocity = bullet->velocity.rotated(absolute_rotation - bullet->transform.get_rotation());
+		}
+		if(kit->alpha_over_lifetime.is_valid()) {
+			float alpha = kit->alpha_over_lifetime->interpolate(adjusted_lifetime);
+			Color color = kit->base_modulate_color;
+			color.a = alpha;
+			VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, color);
 		}
 		_process_acceleration(bullet, delta);
 
@@ -128,6 +140,10 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 		}
 		// Bullet is still alive, increase its lifetime.
 		bullet->lifetime += delta;
+		// If bullet should free itself after it's lifetime, do it
+		if(kit->free_after_lifetime && bullet->lifetime > kit->lifetime_curves_span) {
+			return true;
+		}
 		// Return false if the bullet should not be deleted yet.
 		return false;
 	}
