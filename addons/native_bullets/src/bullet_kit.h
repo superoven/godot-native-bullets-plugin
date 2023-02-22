@@ -52,12 +52,6 @@ public:
 	bool rotate = false;
 	// Allows you to set the CanvasItem modulate color for the whole bullet kit
 	Color base_modulate_color;
-	// // Allows the bullet velocity to accelerate in this direction
-	// Vector2 acceleration_basis_vector;
-	// // Accelation Speed along the acceleration_basis_vector
-	// float_t acceleration_speed = 0.0;
-	// // Maximum Speed we can accelerate to
-	// float_t max_speed = std::numeric_limits<float>::max();
 	// Allows the ability to have a unique-ish value in each instance of the bullet material.
 	// Can be used to offset the bullets animation by a unique amount to avoid having them animate in sync.
 	int32_t unique_modulate_component = 0;

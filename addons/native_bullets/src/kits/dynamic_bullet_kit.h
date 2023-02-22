@@ -122,11 +122,14 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 		}
 		if(kit->alpha_over_lifetime.is_valid()) {
 			float alpha = kit->alpha_over_lifetime->interpolate(adjusted_lifetime);
-			Color color = kit->base_modulate_color;
+			// Color color = kit->base_modulate_color;
+			Color color = bullet->modulate;
 			color.a = alpha;
+			bullet->modulate = color;
 			VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, color);
 		}
 		_process_acceleration(bullet, delta);
+		_process_modulate(bullet, delta);
 
 		bullet->transform.set_origin(bullet->transform.get_origin() + bullet->velocity * delta);
 

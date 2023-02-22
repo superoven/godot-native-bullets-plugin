@@ -44,6 +44,11 @@ void AbstractBulletsPool<Kit, BulletType>::_process_acceleration(BulletType* bul
 	bullet->velocity = bullet->velocity.clamped(bullet->max_speed);
 }
 
+template <class Kit, class BulletType>
+void AbstractBulletsPool<Kit, BulletType>::_process_modulate(BulletType* bullet, float delta) {
+	VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->modulate);
+}
+
 //-- END Default "standard" implementation.
 
 template <class Kit, class BulletType>
@@ -110,9 +115,10 @@ void AbstractBulletsPool<Kit, BulletType>::_init(Node* parent_hint, RID shared_a
 		bullets[i] = bullet;
 
 		bullet->item_rid = VisualServer::get_singleton()->canvas_item_create();
+		bullet->modulate = kit->base_modulate_color;
 		VisualServer::get_singleton()->canvas_item_set_parent(bullet->item_rid, canvas_item);
 		VisualServer::get_singleton()->canvas_item_set_material(bullet->item_rid, kit->material->get_rid());
-		VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, kit->base_modulate_color);
+		VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->modulate);
 
 		if(collisions_enabled) {
 			RID shared_shape_rid = kit->collision_shape->get_rid();
