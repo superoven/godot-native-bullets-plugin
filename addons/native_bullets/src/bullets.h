@@ -89,6 +89,7 @@ public:
 	Variant get_bullet_property(Variant id, String property);
 	void apply_bullet_properties(Variant id, Dictionary properties);
 	void apply_bullet_properties_to_kit(Ref<BulletKit> kit, Dictionary properties);
+	void release_all();
 };
 
 #endif

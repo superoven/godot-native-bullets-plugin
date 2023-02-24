@@ -42,6 +42,7 @@ void Bullets::_register_methods() {
 	register_method("get_bullet_property", &Bullets::get_bullet_property);
 	register_method("apply_bullet_properties", &Bullets::apply_bullet_properties);
 	register_method("apply_bullet_properties_to_kit", &Bullets::apply_bullet_properties_to_kit);
+	register_method("release_all", &Bullets::release_all);
 }
 
 Bullets::Bullets() { }
@@ -429,4 +430,14 @@ Variant Bullets::get_bullet_property(Variant id, String property) {
 		return pool_sets[bullet_id[2]].pools[pool_index].pool->get_bullet_property(BulletID(bullet_id[0], bullet_id[1], bullet_id[2]), property);
 	}
 	return Variant();
+}
+
+void Bullets::release_all() {
+	for(int32_t i = 0; i < pool_sets.size(); i++) {
+		for(int32_t j = 0; j < pool_sets[i].pools.size(); j++) {
+			pool_sets[i].pools[j].pool->release_all();
+		}
+	}
+	available_bullets = 0;
+	active_bullets = 0;
 }

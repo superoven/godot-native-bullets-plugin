@@ -372,3 +372,14 @@ Variant AbstractBulletsPool<Kit, BulletType>::get_bullet_property(BulletID id, S
 	}
 	return Variant();
 }
+
+template <class Kit, class BulletType>
+void AbstractBulletsPool<Kit, BulletType>::release_all() {
+	// Release all bullets in this pool
+	for(int32_t i = 0; i < pool_size; i++) {
+		if(is_bullet_existing(i)) {
+			Godot::print("{0} apparently exists: removing", i);
+			_release_bullet(i);
+		}
+	}
+}

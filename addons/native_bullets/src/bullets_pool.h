@@ -66,6 +66,7 @@ public:
 	virtual Variant get_bullet_property(BulletID id, String property) = 0;
 	virtual void apply_bullet_properties(BulletID id, Dictionary properties) = 0;
 	virtual void apply_all(Dictionary properties) = 0;
+	virtual void release_all() = 0;
 };
 
 template <class Kit, class BulletType>
@@ -106,6 +107,7 @@ public:
 	virtual Variant get_bullet_property(BulletID id, String property) override;
 	virtual void apply_bullet_properties(BulletID id, Dictionary properties) override;
 	virtual void apply_all(Dictionary properties) override;
+	virtual void release_all() override;
 };
 
 #include "bullets_pool.inl"
