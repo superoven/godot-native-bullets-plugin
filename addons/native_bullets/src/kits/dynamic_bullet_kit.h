@@ -64,6 +64,7 @@ public:
 	Ref<Curve> speed_multiplier_over_lifetime;
 	Ref<Curve> rotation_offset_over_lifetime;
 	Ref<Curve> alpha_over_lifetime;
+	Ref<Curve> red_over_lifetime;
 
 	static void _register_methods() {
 		register_property<DynamicBulletKit, Ref<Texture>>("texture", &DynamicBulletKit::texture, Ref<Texture>(), 
@@ -79,6 +80,8 @@ public:
 		register_property<DynamicBulletKit, Ref<Curve>>("rotation_offset_over_lifetime", &DynamicBulletKit::rotation_offset_over_lifetime, Ref<Curve>(), 
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
 		register_property<DynamicBulletKit, Ref<Curve>>("alpha_over_lifetime", &DynamicBulletKit::alpha_over_lifetime, Ref<Curve>(), 
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
+		register_property<DynamicBulletKit, Ref<Curve>>("red_over_lifetime", &DynamicBulletKit::red_over_lifetime, Ref<Curve>(),
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
 		
 		BULLET_KIT_REGISTRATION(DynamicBulletKit, DynamicBullet)
@@ -122,9 +125,15 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 		}
 		if(kit->alpha_over_lifetime.is_valid()) {
 			float alpha = kit->alpha_over_lifetime->interpolate(adjusted_lifetime);
-			// Color color = kit->base_modulate_color;
 			Color color = bullet->modulate;
 			color.a = alpha;
+			bullet->modulate = color;
+			VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, color);
+		}
+		if(kit->red_over_lifetime.is_valid()) {
+			float red = kit->red_over_lifetime->interpolate(adjusted_lifetime);
+			Color color = bullet->modulate;
+			color.r = red;
 			bullet->modulate = color;
 			VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, color);
 		}
