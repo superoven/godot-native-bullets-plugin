@@ -438,6 +438,6 @@ void Bullets::release_all() {
 			pool_sets[i].pools[j].pool->release_all();
 		}
 	}
-	available_bullets = 0;
+	//available_bullets = 0;
 	active_bullets = 0;
 }
