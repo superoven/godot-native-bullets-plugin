@@ -34,6 +34,7 @@ public:
 	// Maximum Speed we can accelerate to
 	float_t max_speed = std::numeric_limits<float>::max();
 	Color modulate;
+	float glow_degree;
 	float lifetime;
 	Variant data;
 
@@ -63,6 +64,8 @@ public:
 		register_property<Bullet, Color>("modulate", &Bullet::modulate,
 			Color(1.0, 1.0, 1.0, 1.0), GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT,
 			GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Color");
+		
+		register_property<Bullet, float>("glow_degree", &Bullet::glow_degree, 1.0f);
 
 		register_property<Bullet, float>("lifetime", &Bullet::lifetime, 0.0f);
 		register_property<Bullet, Variant>("data", &Bullet::data, Variant());

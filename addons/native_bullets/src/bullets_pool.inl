@@ -46,7 +46,14 @@ void AbstractBulletsPool<Kit, BulletType>::_process_acceleration(BulletType* bul
 
 template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::_process_modulate(BulletType* bullet, float delta) {
-	VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->modulate);
+	// float glow_modulate = bullet->modulate * bullet->glow_degree;
+	Color final_color = Color(
+		bullet->modulate.r * bullet->glow_degree,
+		bullet->modulate.g * bullet->glow_degree,
+		bullet->modulate.b * bullet->glow_degree,
+		bullet->modulate.a
+	);
+	VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, final_color);
 }
 
 //-- END Default "standard" implementation.
