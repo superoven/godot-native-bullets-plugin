@@ -16,6 +16,7 @@ class DynamicBullet : public Bullet {
 public:
 	Transform2D starting_transform;
 	float starting_speed;
+	// Vector2 starting_
 
 	void set_transform(Transform2D transform) {
 		starting_transform = transform;
@@ -29,6 +30,7 @@ public:
 	void set_velocity(Vector2 velocity) {
 		starting_speed = velocity.length();
 		this->velocity = velocity;
+		// Godot::print("INSIDE C++: {0} Setting bullet velocity to: {1}", this, this->velocity);
 	}
 
 	Vector2 get_velocity() {
@@ -103,6 +105,8 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 		VisualServer::get_singleton()->canvas_item_add_texture_rect(bullet->item_rid,
 			texture_rect,
 			texture_rid);
+		// Godot::print("INSIDE C++: {0} enabled! velocity: {1}", this, bullet->velocity);
+
 	}
 
 	// void _disable_bullet(Bullet* bullet); Use default implementation.
