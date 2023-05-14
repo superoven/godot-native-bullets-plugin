@@ -224,6 +224,11 @@ void Bullets::mount(Node* bullets_environment) {
 		available_bullets += pool_set_available_bullets;
 	}
 	total_bullets = available_bullets;
+
+	Array children = bullets_environment->get_children();
+	for (int32_t i = 0; i < children.size(); i++) {
+		Godot::print("Child {0}: {1}", i, children[i]);
+	}
 }
 
 void Bullets::unmount(Node* bullets_environment) {
