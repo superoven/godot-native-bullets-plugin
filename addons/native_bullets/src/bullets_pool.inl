@@ -381,12 +381,33 @@ Variant AbstractBulletsPool<Kit, BulletType>::get_bullet_property(BulletID id, S
 }
 
 template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::release_all() {
+int32_t AbstractBulletsPool<Kit, BulletType>::release_all() {
 	// Release all bullets in this pool
+	int32_t bullets_variation = 0;
+	int32_t num_didnt_exist = 0;
+	Godot::print("Removing for pool! Available: {0} Active: {1}", available_bullets, active_bullets);
 	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
-		if(is_bullet_existing(i)) {
-			// Godot::print("{0} apparently exists: removing", i);
-			_release_bullet(i);
+		BulletID id = get_bullet_from_shape(i);
+		if (release_bullet(id)) {
+			bullets_variation -= 1;
+		} else {
+			num_didnt_exist += 0;
 		}
+		// if(is_bullet_existing(i)) {
+		// 	_release_bullet(i);
+		// 	bullets_variation -= 1;
+		// 	i += 1;
+		// 	available_bullets += 1;
+		// } else {
+		// 	num_didnt_exist += 1;
+		// }
+		// BulletType* bullet = bullets[i];
+		// this->release_bullet(i);
+		// if(is_bullet_existing(i)) {
+		// 	// Godot::print("{0} apparently exists: removing", i);
+			
+		// }
 	}
+	Godot::print("Removing {0} bullets! from pool! {1} didn't exist", bullets_variation, num_didnt_exist);
+	return bullets_variation;
 }

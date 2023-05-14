@@ -433,11 +433,17 @@ Variant Bullets::get_bullet_property(Variant id, String property) {
 }
 
 void Bullets::release_all() {
+	int32_t bullets_variation = 0;
+	// pool_sets[i].pools[j].pool->_process(delta);
+
 	for(int32_t i = 0; i < pool_sets.size(); i++) {
 		for(int32_t j = 0; j < pool_sets[i].pools.size(); j++) {
-			pool_sets[i].pools[j].pool->release_all();
+			bullets_variation += pool_sets[i].pools[j].pool->release_all();
 		}
 	}
 	//available_bullets = 0;
-	active_bullets = 0;
+	// active_bullets = 0;
+
+	available_bullets -= bullets_variation;
+	active_bullets += bullets_variation;
 }
