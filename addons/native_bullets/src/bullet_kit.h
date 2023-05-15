@@ -13,6 +13,7 @@
 #include <limits>
 
 #include "bullet.h"
+#include "bullets.h"
 
 #define BULLET_KIT(BulletsPoolType)							\
 std::unique_ptr<BulletsPool> _create_pool() override;

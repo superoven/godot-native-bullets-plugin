@@ -41,6 +41,8 @@ void Bullets::_register_methods() {
 	register_method("set_bullet_property", &Bullets::set_bullet_property);
 	register_method("get_bullet_property", &Bullets::get_bullet_property);
 	register_method("apply_bullet_properties", &Bullets::apply_bullet_properties);
+
+
 	register_method("apply_bullet_properties_to_kit", &Bullets::apply_bullet_properties_to_kit);
 	register_method("release_all", &Bullets::release_all);
 }
@@ -119,6 +121,7 @@ void Bullets::mount(Node* bullets_environment) {
 	pool_sets.clear();
 	areas_to_pool_set_indices.clear();
 	kits_to_set_pool_indices.clear();
+	bullets_animations.clear();
 	_clear_rids();
 	shared_areas.clear();
 
@@ -225,9 +228,13 @@ void Bullets::mount(Node* bullets_environment) {
 	}
 	total_bullets = available_bullets;
 
+	// Register the BulletsAnimations
 	Array children = bullets_environment->get_children();
 	for (int32_t i = 0; i < children.size(); i++) {
-		Godot::print("Child {0}: {1}", i, children[i]);
+		Node* child = Object::cast_to<Node>(children[i]);
+		String name = child->get_name();
+		Godot::print("Registering BulletsAnimation: '{0}'", name);
+		bullets_animations[name] = child;
 	}
 }
 
@@ -236,6 +243,7 @@ void Bullets::unmount(Node* bullets_environment) {
 		pool_sets.clear();
 		areas_to_pool_set_indices.clear();
 		kits_to_set_pool_indices.clear();
+		bullets_animations.clear();
 		_clear_rids();
 		shared_areas.clear();
 
@@ -252,6 +260,13 @@ void Bullets::unmount(Node* bullets_environment) {
 
 Node* Bullets::get_bullets_environment() {
 	return bullets_environment;
+}
+
+Node* Bullets::_get_bullets_animation(String animation_name) {
+	if (bullets_animations.has(animation_name)) {
+		return bullets_animations[animation_name];
+	}
+	return nullptr;
 }
 
 Variant Bullets::spawn_bullet(Ref<BulletKit> kit, Dictionary properties) {
@@ -410,6 +425,10 @@ void Bullets::set_bullet_property(Variant id, String property, Variant value) {
 	if(pool_index >= 0) {
 		pool_sets[bullet_id[2]].pools[pool_index].pool->set_bullet_property(BulletID(bullet_id[0], bullet_id[1], bullet_id[2]), property, value);
 	}
+}
+
+void Bullets::apply_bullet_animation(Variant id) {
+	Godot::print("This doesn't do anything yet!");
 }
 
 void Bullets::apply_bullet_properties(Variant id, Dictionary properties) {

@@ -6,17 +6,18 @@
 #include <Font.hpp>
 
 #include "bullets_pool.h"
+#include "bullets.h"
 
 using namespace godot;
 
 
 //-- START Default "standard" implementations.
 
-template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::_init_bullet(BulletType* bullet) {}
+template <class Kit, class BulletType, class Bullets>
+void AbstractBulletsPool<Kit, BulletType, Bullets>::_init_bullet(BulletType* bullet) {}
 
-template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::_enable_bullet(BulletType* bullet) {
+template <class Kit, class BulletType, class Bullets>
+void AbstractBulletsPool<Kit, BulletType, Bullets>::_enable_bullet(BulletType* bullet) {
 	bullet->lifetime = 0.0f;
 
 	Rect2 texture_rect = Rect2(-kit->texture->get_size() / 2.0f, kit->texture->get_size());
@@ -27,25 +28,25 @@ void AbstractBulletsPool<Kit, BulletType>::_enable_bullet(BulletType* bullet) {
 		texture_rid);
 }
 
-template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::_disable_bullet(BulletType* bullet) {
+template <class Kit, class BulletType, class Bullets>
+void AbstractBulletsPool<Kit, BulletType, Bullets>::_disable_bullet(BulletType* bullet) {
 	VisualServer::get_singleton()->canvas_item_clear(bullet->item_rid);
 }
 
-template <class Kit, class BulletType>
-bool AbstractBulletsPool<Kit, BulletType>::_process_bullet(BulletType* bullet, float delta) {
+template <class Kit, class BulletType, class Bullets>
+bool AbstractBulletsPool<Kit, BulletType, Bullets>::_process_bullet(BulletType* bullet, float delta) {
 	ERR_PRINT("AbstractBulletKit needs an implementation of _process_bullet!");
 	return false;
 }
 
-template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::_process_acceleration(BulletType* bullet, float delta) {
+template <class Kit, class BulletType, class Bullets>
+void AbstractBulletsPool<Kit, BulletType, Bullets>::_process_acceleration(BulletType* bullet, float delta) {
 	bullet->velocity += bullet->acceleration_basis_vector * bullet->acceleration_speed * delta;
 	bullet->velocity = bullet->velocity.clamped(bullet->max_speed);
 }
 
-template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::_process_modulate(BulletType* bullet, float delta) {
+template <class Kit, class BulletType, class Bullets>
+void AbstractBulletsPool<Kit, BulletType, Bullets>::_process_modulate(BulletType* bullet, float delta) {
 	// float glow_modulate = bullet->modulate * bullet->glow_degree;
 	Color final_color = Color(
 		bullet->modulate.r * bullet->glow_degree,
@@ -56,10 +57,23 @@ void AbstractBulletsPool<Kit, BulletType>::_process_modulate(BulletType* bullet,
 	VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, final_color);
 }
 
+template <class Kit, class BulletType, class Bullets>
+void AbstractBulletsPool<Kit, BulletType, Bullets>::_process_animation(BulletType* bullet, float delta) {
+	// Node* wow = Bullets::_get_bullets_animation(bullet->animation_name);
+	// float glow_modulate = bullet->modulate * bullet->glow_degree;
+	// Color final_color = Color(
+	// 	bullet->modulate.r * bullet->glow_degree,
+	// 	bullet->modulate.g * bullet->glow_degree,
+	// 	bullet->modulate.b * bullet->glow_degree,
+	// 	bullet->modulate.a
+	// );
+	// VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, final_color);
+}
+
 //-- END Default "standard" implementation.
 
-template <class Kit, class BulletType>
-AbstractBulletsPool<Kit, BulletType>::~AbstractBulletsPool() {
+template <class Kit, class BulletType, class Bullets>
+AbstractBulletsPool<Kit, BulletType, Bullets>::~AbstractBulletsPool() {
 	// Bullets node is responsible for clearing all the area and area shapes
 	for(int32_t i = 0; i < pool_size; i++) {
 		VisualServer::get_singleton()->free_rid(bullets[i]->item_rid);
@@ -71,8 +85,8 @@ AbstractBulletsPool<Kit, BulletType>::~AbstractBulletsPool() {
 	delete[] shapes_to_indices;
 }
 
-template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::_init(Node* parent_hint, RID shared_area, int32_t starting_shape_index,
+template <class Kit, class BulletType, class Bullets>
+void AbstractBulletsPool<Kit, BulletType, Bullets>::_init(Node* parent_hint, RID shared_area, int32_t starting_shape_index,
 		int32_t set_index, Ref<BulletKit> kit, int32_t pool_size, int32_t z_index) {
 	
 	// Check if collisions are enabled and if layer or mask are != 0, 
@@ -158,8 +172,8 @@ void AbstractBulletsPool<Kit, BulletType>::_init(Node* parent_hint, RID shared_a
 	}
 }
 
-template <class Kit, class BulletType>
-int32_t AbstractBulletsPool<Kit, BulletType>::_process(float delta) {
+template <class Kit, class BulletType, class Bullets>
+int32_t AbstractBulletsPool<Kit, BulletType, Bullets>::_process(float delta) {
 	if(kit->use_viewport_as_active_rect) {
 		Rect2 viewport_rect = viewport->get_visible_rect();
 		Transform2D viewport_inv_transform = canvas_layer ? canvas_layer->get_transform().affine_inverse() : viewport->get_canvas_transform().affine_inverse();
@@ -210,8 +224,8 @@ int32_t AbstractBulletsPool<Kit, BulletType>::_process(float delta) {
 	return amount_variation;
 }
 
-template <class Kit, class BulletType>
-BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary properties) {
+template <class Kit, class BulletType, class Bullets>
+BulletID AbstractBulletsPool<Kit, BulletType, Bullets>::spawn_bullet(Dictionary properties) {
 	if(available_bullets > 0) {
 		available_bullets -= 1;
 		active_bullets += 1;
@@ -236,8 +250,8 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 	return BulletID(-1, -1, -1);
 }
 
-template <class Kit, class BulletType>
-BulletID AbstractBulletsPool<Kit, BulletType>::obtain_bullet() {
+template <class Kit, class BulletType, class Bullets>
+BulletID AbstractBulletsPool<Kit, BulletType, Bullets>::obtain_bullet() {
 	if(available_bullets > 0) {
 		available_bullets -= 1;
 		active_bullets += 1;
@@ -258,8 +272,8 @@ BulletID AbstractBulletsPool<Kit, BulletType>::obtain_bullet() {
 	return BulletID(-1, -1, -1);
 }
 
-template <class Kit, class BulletType>
-bool AbstractBulletsPool<Kit, BulletType>::release_bullet(BulletID id) {
+template <class Kit, class BulletType, class Bullets>
+bool AbstractBulletsPool<Kit, BulletType, Bullets>::release_bullet(BulletID id) {
 	if(id.index >= starting_shape_index && id.index < starting_shape_index + pool_size && id.set == set_index) {
 		int32_t bullet_index = shapes_to_indices[id.index - starting_shape_index];
 		if(bullet_index >= available_bullets && bullet_index < pool_size && id.cycle == bullets[bullet_index]->cycle) {
@@ -270,8 +284,8 @@ bool AbstractBulletsPool<Kit, BulletType>::release_bullet(BulletID id) {
 	return false;
 }
 
-template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::_release_bullet(int32_t index) {
+template <class Kit, class BulletType, class Bullets>
+void AbstractBulletsPool<Kit, BulletType, Bullets>::_release_bullet(int32_t index) {
 	BulletType* bullet = bullets[index];
 	
 	if(collisions_enabled)
@@ -287,8 +301,8 @@ void AbstractBulletsPool<Kit, BulletType>::_release_bullet(int32_t index) {
 	active_bullets -= 1;
 }
 
-template <class Kit, class BulletType>
-bool AbstractBulletsPool<Kit, BulletType>::is_bullet_valid(BulletID id) {
+template <class Kit, class BulletType, class Bullets>
+bool AbstractBulletsPool<Kit, BulletType, Bullets>::is_bullet_valid(BulletID id) {
 	if(id.index >= starting_shape_index && id.index < starting_shape_index + pool_size && id.set == set_index) {
 		int32_t bullet_index = shapes_to_indices[id.index - starting_shape_index];
 		if(bullet_index >= available_bullets && bullet_index < pool_size && id.cycle == bullets[bullet_index]->cycle) {
@@ -298,8 +312,8 @@ bool AbstractBulletsPool<Kit, BulletType>::is_bullet_valid(BulletID id) {
 	return false;
 }
 
-template <class Kit, class BulletType>
-bool AbstractBulletsPool<Kit, BulletType>::is_bullet_existing(int32_t shape_index) {
+template <class Kit, class BulletType, class Bullets>
+bool AbstractBulletsPool<Kit, BulletType, Bullets>::is_bullet_existing(int32_t shape_index) {
 	if(shape_index >= starting_shape_index && shape_index < starting_shape_index + pool_size) {
 		int32_t bullet_index = shapes_to_indices[shape_index - starting_shape_index];
 		if(bullet_index >= available_bullets) {
@@ -309,8 +323,8 @@ bool AbstractBulletsPool<Kit, BulletType>::is_bullet_existing(int32_t shape_inde
 	return false;
 }
 
-template <class Kit, class BulletType>
-BulletID AbstractBulletsPool<Kit, BulletType>::get_bullet_from_shape(int32_t shape_index) {
+template <class Kit, class BulletType, class Bullets>
+BulletID AbstractBulletsPool<Kit, BulletType, Bullets>::get_bullet_from_shape(int32_t shape_index) {
 	if(shape_index >= starting_shape_index && shape_index < starting_shape_index + pool_size) {
 		int32_t bullet_index = shapes_to_indices[shape_index - starting_shape_index];
 		if(bullet_index >= available_bullets) {
@@ -321,8 +335,8 @@ BulletID AbstractBulletsPool<Kit, BulletType>::get_bullet_from_shape(int32_t sha
 }
 
 
-template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::set_bullet_property(BulletID id, String property, Variant value) {
+template <class Kit, class BulletType, class Bullets>
+void AbstractBulletsPool<Kit, BulletType, Bullets>::set_bullet_property(BulletID id, String property, Variant value) {
 	if(is_bullet_valid(id)) {
 		int32_t bullet_index = shapes_to_indices[id.index - starting_shape_index];
 		bullets[bullet_index]->set(property, value);
@@ -336,8 +350,8 @@ void AbstractBulletsPool<Kit, BulletType>::set_bullet_property(BulletID id, Stri
 	}
 }
 
-template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::apply_bullet_properties(BulletID id, Dictionary properties) {
+template <class Kit, class BulletType, class Bullets>
+void AbstractBulletsPool<Kit, BulletType, Bullets>::apply_bullet_properties(BulletID id, Dictionary properties) {
 	if(is_bullet_valid(id)) {
 		int32_t bullet_index = shapes_to_indices[id.index - starting_shape_index];
 		BulletType* bullet = bullets[bullet_index];
@@ -347,8 +361,8 @@ void AbstractBulletsPool<Kit, BulletType>::apply_bullet_properties(BulletID id, 
 	}
 }
 
-template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::_apply_properties(BulletType* bullet, Dictionary properties) {
+template <class Kit, class BulletType, class Bullets>
+void AbstractBulletsPool<Kit, BulletType, Bullets>::_apply_properties(BulletType* bullet, Dictionary properties) {
 	Array keys = properties.keys();
 	for(int32_t i = 0; i < keys.size(); i++) {
 		String key = keys[i];
@@ -362,16 +376,16 @@ void AbstractBulletsPool<Kit, BulletType>::_apply_properties(BulletType* bullet,
 	}
 }
 
-template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::apply_all(Dictionary properties) {
+template <class Kit, class BulletType, class Bullets>
+void AbstractBulletsPool<Kit, BulletType, Bullets>::apply_all(Dictionary properties) {
 	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
 		BulletType* bullet = bullets[i];
 		this->_apply_properties(bullet, properties);
 	}
 }
 
-template <class Kit, class BulletType>
-Variant AbstractBulletsPool<Kit, BulletType>::get_bullet_property(BulletID id, String property) {
+template <class Kit, class BulletType, class Bullets>
+Variant AbstractBulletsPool<Kit, BulletType, Bullets>::get_bullet_property(BulletID id, String property) {
 	if(is_bullet_valid(id)) {
 		int32_t bullet_index = shapes_to_indices[id.index - starting_shape_index];
 
@@ -380,8 +394,8 @@ Variant AbstractBulletsPool<Kit, BulletType>::get_bullet_property(BulletID id, S
 	return Variant();
 }
 
-template <class Kit, class BulletType>
-int32_t AbstractBulletsPool<Kit, BulletType>::release_all() {
+template <class Kit, class BulletType, class Bullets>
+int32_t AbstractBulletsPool<Kit, BulletType, Bullets>::release_all() {
 	// Release all bullets in this pool
 	int32_t bullets_variation = 0;
 	int32_t num_didnt_exist = 0;

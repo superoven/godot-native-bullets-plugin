@@ -8,6 +8,7 @@
 #include <Material.hpp>
 #include <Color.hpp>
 
+#include "bullets.h"
 #include "bullet.h"
 #include "bullet_kit.h"
 
@@ -69,7 +70,7 @@ public:
 	virtual int32_t release_all() = 0;
 };
 
-template <class Kit, class BulletType>
+template <class Kit, class BulletType, class Bullets>
 class AbstractBulletsPool : public BulletsPool {
 
 protected:
@@ -81,7 +82,10 @@ protected:
 	virtual inline void _disable_bullet(BulletType* bullet);
 	virtual inline bool _process_bullet(BulletType* bullet, float delta);
 	virtual inline void _process_acceleration(BulletType* bullet, float delta);
+	
 	virtual inline void _process_modulate(BulletType* bullet, float delta);
+	
+	virtual inline void _process_animation(BulletType* bullet, float delta);
 
 	inline void _release_bullet(int32_t index);
 	virtual void _apply_properties(BulletType* bullet, Dictionary properties);

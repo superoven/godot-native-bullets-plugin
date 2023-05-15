@@ -7,6 +7,7 @@
 #include <SceneTree.hpp>
 #include <cmath>
 
+#include "../bullets.h"
 #include "../bullet_kit.h"
 
 using namespace godot;

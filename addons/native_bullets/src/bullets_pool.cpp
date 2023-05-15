@@ -1,4 +1,5 @@
 #include "bullets_pool.h"
+#include "bullets.h"
 
 using namespace godot;
 

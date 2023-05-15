@@ -5,6 +5,7 @@
 #include <PackedScene.hpp>
 #include <Curve.hpp>
 
+#include "../bullets.h"
 #include "../bullet_kit.h"
 
 using namespace godot;

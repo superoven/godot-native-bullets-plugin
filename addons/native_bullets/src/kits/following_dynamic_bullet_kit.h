@@ -6,6 +6,7 @@
 #include <Curve.hpp>
 #include <Node2D.hpp>
 
+#include "../bullets.h"
 #include "../bullet_kit.h"
 
 using namespace godot;

@@ -6,6 +6,8 @@
 
 #include <limits>
 
+#include "bullets.h"
+
 using namespace godot;
 
 
@@ -35,6 +37,8 @@ public:
 	float_t max_speed = std::numeric_limits<float>::max();
 	Color modulate;
 	float glow_degree;
+	String animation_name;
+	float animation_start_time;
 	float lifetime;
 	Variant data;
 

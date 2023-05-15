@@ -4,6 +4,7 @@
 #include <Texture.hpp>
 #include <PackedScene.hpp>
 
+#include "../bullets.h"
 #include "../bullet_kit.h"
 
 using namespace godot;

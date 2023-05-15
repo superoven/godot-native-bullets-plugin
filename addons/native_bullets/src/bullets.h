@@ -39,6 +39,8 @@ private:
 	Dictionary areas_to_pool_set_indices;
 	// Maps each BulletKit to the corresponding PoolKit index.
 	Dictionary kits_to_set_pool_indices;
+	// Maps a name to each BulletAnimation under the BulletEnvironment
+	Dictionary bullets_animations;
 
 	Node* bullets_environment = nullptr;
 
@@ -51,6 +53,8 @@ private:
 
 	void _clear_rids();
 	int32_t _get_pool_index(int32_t set_index, int32_t bullet_index);
+
+	// Node* _get_bullets_animation(String animation_name);
 
 public:
 	static void _register_methods();
@@ -88,6 +92,10 @@ public:
 	void set_bullet_property(Variant id, String property, Variant value);
 	Variant get_bullet_property(Variant id, String property);
 	void apply_bullet_properties(Variant id, Dictionary properties);
+	void apply_bullet_animation(Variant id);
+
+	Node* _get_bullets_animation(String animation_name);
+
 	void apply_bullet_properties_to_kit(Ref<BulletKit> kit, Dictionary properties);
 	void release_all();
 };
