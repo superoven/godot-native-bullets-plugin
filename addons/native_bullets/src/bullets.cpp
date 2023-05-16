@@ -11,6 +11,7 @@
 
 using namespace godot;
 
+Bullets* Bullets::_singleton = nullptr;
 
 void Bullets::_register_methods() {
 	register_method("_physics_process", &Bullets::_physics_process);
@@ -42,6 +43,7 @@ void Bullets::_register_methods() {
 	register_method("get_bullet_property", &Bullets::get_bullet_property);
 	register_method("apply_bullet_properties", &Bullets::apply_bullet_properties);
 
+	register_method("apply_bullets_animation", &Bullets::apply_bullets_animation);
 
 	register_method("apply_bullet_properties_to_kit", &Bullets::apply_bullet_properties_to_kit);
 	register_method("release_all", &Bullets::release_all);
@@ -103,6 +105,7 @@ int32_t Bullets::_get_pool_index(int32_t set_index, int32_t bullet_index) {
 }
 
 void Bullets::mount(Node* bullets_environment) {
+	Bullets::_singleton = this;
 	if(bullets_environment == nullptr || this->bullets_environment == bullets_environment) {
 		return;
 	}
@@ -262,7 +265,7 @@ Node* Bullets::get_bullets_environment() {
 	return bullets_environment;
 }
 
-Node* Bullets::_get_bullets_animation(String animation_name) {
+Node* Bullets::get_bullets_animation(String animation_name) {
 	if (bullets_animations.has(animation_name)) {
 		return bullets_animations[animation_name];
 	}
@@ -427,8 +430,16 @@ void Bullets::set_bullet_property(Variant id, String property, Variant value) {
 	}
 }
 
-void Bullets::apply_bullet_animation(Variant id) {
-	Godot::print("This doesn't do anything yet!");
+void Bullets::apply_bullets_animation(Variant id, String animation_name) {
+	PoolIntArray bullet_id = id.operator PoolIntArray();
+
+	int32_t pool_index = _get_pool_index(bullet_id[2], bullet_id[0]);
+	if(pool_index >= 0) {
+		pool_sets[bullet_id[2]].pools[pool_index].pool->apply_bullets_animation(BulletID(bullet_id[0], bullet_id[1], bullet_id[2]), animation_name);
+	}
+	// apply_bullets_animation	
+
+	// Godot::print("This doesn't do anything yet!");
 }
 
 void Bullets::apply_bullet_properties(Variant id, Dictionary properties) {

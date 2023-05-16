@@ -1,4 +1,5 @@
 #include "bullets.h"
+#include "bullets_animation.h"
 #include "kits/basic_bullet_kit.h"
 #include "kits/following_bullet_kit.h"
 #include "kits/dynamic_bullet_kit.h"
@@ -31,6 +32,9 @@ extern "C" void GDN_EXPORT godot_nativescript_init(void *handle) {
 
 	godot::register_class<FollowingDynamicBullet>();
 	godot::register_class<FollowingDynamicBulletKit>();
+
+	godot::register_class<BulletsAnimation>();
+	godot::register_tool_class<BulletsAnimation>();
 	
 	// Custom Bullet Kits.
 	//godot::register_class<CustomBulletKit>();

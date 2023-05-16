@@ -177,6 +177,7 @@ class FollowingDynamicBulletsPool : public AbstractBulletsPool<FollowingDynamicB
 
 		_process_acceleration(bullet, delta);
 		_process_modulate(bullet, delta);
+		_process_animation(bullet, delta);
 		bullet->transform.set_origin(bullet->transform.get_origin() + bullet->velocity * delta);
 
 		if(!active_rect.has_point(bullet->transform.get_origin())) {

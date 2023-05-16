@@ -90,6 +90,7 @@ class FollowingBulletsPool : public AbstractBulletsPool<FollowingBulletKit, Foll
 		}
 		_process_acceleration(bullet, delta);
 		_process_modulate(bullet, delta);
+		_process_animation(bullet, delta);
 		// Apply velocity.
 		bullet->transform.set_origin(bullet->transform.get_origin() + bullet->velocity * delta);
 

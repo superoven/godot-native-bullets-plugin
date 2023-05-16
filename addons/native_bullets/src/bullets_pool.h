@@ -66,11 +66,13 @@ public:
 	virtual void set_bullet_property(BulletID id, String property, Variant value) = 0;
 	virtual Variant get_bullet_property(BulletID id, String property) = 0;
 	virtual void apply_bullet_properties(BulletID id, Dictionary properties) = 0;
+	virtual void apply_bullets_animation(BulletID id, String animation_name) = 0;
+
 	virtual void apply_all(Dictionary properties) = 0;
 	virtual int32_t release_all() = 0;
 };
 
-template <class Kit, class BulletType, class Bullets>
+template <class Kit, class BulletType>
 class AbstractBulletsPool : public BulletsPool {
 
 protected:
@@ -110,6 +112,9 @@ public:
 	virtual void set_bullet_property(BulletID id, String property, Variant value) override;
 	virtual Variant get_bullet_property(BulletID id, String property) override;
 	virtual void apply_bullet_properties(BulletID id, Dictionary properties) override;
+	
+	virtual void apply_bullets_animation(BulletID id, String animation_name) override;
+
 	virtual void apply_all(Dictionary properties) override;
 	virtual int32_t release_all() override;
 };
