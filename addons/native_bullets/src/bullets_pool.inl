@@ -4,6 +4,7 @@
 #include <Physics2DServer.hpp>
 #include <Viewport.hpp>
 #include <Font.hpp>
+#include <Math.hpp>
 
 #include "bullets_pool.h"
 #include "bullets.h"
@@ -45,6 +46,7 @@ void AbstractBulletsPool<Kit, BulletType>::_process_acceleration(BulletType* bul
 	bullet->velocity = bullet->velocity.clamped(bullet->max_speed);
 }
 
+// TODO: Deprecate
 template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::_process_modulate(BulletType* bullet, float delta) {
 	// float glow_modulate = bullet->modulate * bullet->glow_degree;
@@ -59,11 +61,67 @@ void AbstractBulletsPool<Kit, BulletType>::_process_modulate(BulletType* bullet,
 
 template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet, float delta) {
-	Node* wow = Bullets::get_singleton()->get_bullets_animation(bullet->animation_name);
-	if (wow == nullptr) {
+	bullet->visual_transform = bullet->transform;
+	if (bullet->animation_name == "") {
 		return;
 	}
-	Godot::print("I got this node for animation_name: {0} -- {1}", bullet->animation_name, wow);
+	Node* raw_anim_node = Bullets::get_singleton()->get_bullets_animation(bullet->animation_name);
+	if (raw_anim_node == nullptr) {
+		String message = "Tried to find animation '{0}', but it doesn't exist."
+			" No animation will play";
+		Godot::print_warning(
+			message.format(Array::make(bullet->animation_name)),
+			"_process_animation",
+			"",
+			0
+		);
+		return;
+	}
+	BulletsAnimation* anim = Object::cast_to<BulletsAnimation>(raw_anim_node);
+	if (anim == nullptr) {
+		String message = "Found a Node called '{0}' under the `BulletsEnvironment`, "
+			"but it is not a `BulletsAnimation`. No animation will play";
+		Godot::print_warning(
+			message.format(Array::make(bullet->animation_name)),
+			"_process_animation",
+			"",
+			0
+		);
+		return;
+	}
+	if (anim->duration == 0.0) {
+		Godot::print_error(
+			"BulletsAnimation->duration cannot be 0!",
+			"_process_animation",
+			"",
+			0
+		);
+		return;
+	}
+	// Godot::print("I got this node for animation_name: {0} -- {1}", bullet->animation_name, animation);
+	// float_t anim_end = animation->duration + bullet->animation_start_time;
+	// float_t anim_length = animation->duration + bullet->animation_start_time;
+	float_t lerp_val = Math::clamp(
+		(bullet->lifetime - bullet->animation_start_time) / anim->duration,
+		(float_t)0.0,
+		(float_t)1.0
+	);
+	if(anim->scale_curve.is_valid()) {
+		float_t scale_degree = anim->scale_curve->interpolate(lerp_val);
+		// Godot::print("'{0}': lerp: {1}, scale_degree: {2}", bullet->animation_name, lerp_val, scale_degree);
+		Transform2D new_transform = bullet->transform;
+		new_transform.scale(Vector2(scale_degree, scale_degree) / bullet->transform.get_scale());
+		bullet->visual_transform = new_transform;
+		Godot::print("'{0}': visual_transform: {1} transform: {2}",
+			bullet->animation_name, bullet->visual_transform, bullet->transform
+		);
+		// if !(is_approx_equal(scale_degree, 1.0)) {
+		// }
+		// Transform2D transform = canvasItem->get_transform();
+		// transform.scale(Vector2(2.0, 2.0) / transform.get_scale());
+		// visualServer->canvas_item_set_transform(canvasItem->get_canvas_item(), transform);
+	}
+
 	// float glow_modulate = bullet->modulate * bullet->glow_degree;
 	// Color final_color = Color(
 	// 	bullet->modulate.r * bullet->glow_degree,
@@ -208,7 +266,7 @@ int32_t AbstractBulletsPool<Kit, BulletType>::_process(float delta) {
 				continue;
 			}
 			
-			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->transform);
+			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->visual_transform);
 			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->transform);
 		}
 	} else {
@@ -222,7 +280,7 @@ int32_t AbstractBulletsPool<Kit, BulletType>::_process(float delta) {
 				continue;
 			}
 			
-			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->transform);
+			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->visual_transform);
 		}
 	}
 	return amount_variation;
@@ -348,6 +406,7 @@ void AbstractBulletsPool<Kit, BulletType>::set_bullet_property(BulletID id, Stri
 		int32_t bullet_index = shapes_to_indices[id.index - starting_shape_index];
 		bullets[bullet_index]->set(property, value);
 
+		// TODO: I think that these calls may be unnecessary _process_bullet should be handling it
 		if(property == "transform") {
 			BulletType* bullet = bullets[bullet_index];
 			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->transform);
@@ -375,7 +434,7 @@ void AbstractBulletsPool<Kit, BulletType>::apply_bullets_animation(BulletID id, 
 		BulletType* bullet = bullets[bullet_index];
 		bullet->animation_name = animation_name;
 		bullet->animation_start_time = bullet->lifetime;
-		Godot::print("Set bullet to '{0}'", animation_name);
+		// Godot::print("Set bullet to '{0}'", animation_name);
 	} else {
 		Godot::print("INSIDE C++: Bullet wasn't valid");
 	}
@@ -389,6 +448,7 @@ void AbstractBulletsPool<Kit, BulletType>::_apply_properties(BulletType* bullet,
 		String key = keys[i];
 		Variant value = properties[keys[i]];
 		bullet->set(key, value);
+		// TODO: I think that these calls may be unnecessary _process_bullet should be handling it
 		if(key == "transform") {
 			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, value);
 			if(collisions_enabled)

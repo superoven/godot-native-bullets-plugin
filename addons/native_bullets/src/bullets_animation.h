@@ -8,18 +8,7 @@
 
 #include <limits>
 
-// #include "bullets.h"
-
 using namespace godot;
-
-// struct BulletID {
-// 	int32_t index;
-// 	int32_t cycle;
-// 	int32_t set;
-
-// 	BulletID(int32_t index, int32_t cycle, int32_t set): 
-// 		index(index), cycle(cycle), set(set) {}
-// };
 
 class BulletsAnimation : public Node {
 	GODOT_CLASS(BulletsAnimation, Node)
@@ -63,7 +52,19 @@ public:
     void _ready() {}
 
     static void _register_methods() {
+        register_property<BulletsAnimation, float_t>("duration", &BulletsAnimation::duration,
+            1.0f, GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT,
+            GODOT_PROPERTY_HINT_RANGE, "0.001,10.0,0.01");
         register_property<BulletsAnimation, Ref<Curve>>("glow_curve", &BulletsAnimation::glow_curve,
+            Ref<Curve>(), GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT,
+            GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
+        register_property<BulletsAnimation, Ref<Curve>>("scale_curve", &BulletsAnimation::scale_curve,
+            Ref<Curve>(), GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT,
+            GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
+        register_property<BulletsAnimation, Ref<Curve>>("rotation_curve", &BulletsAnimation::rotation_curve,
+            Ref<Curve>(), GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT,
+            GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
+        register_property<BulletsAnimation, Ref<Curve>>("alpha_curve", &BulletsAnimation::alpha_curve,
             Ref<Curve>(), GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT,
             GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
     }

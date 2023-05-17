@@ -11,6 +11,7 @@
 #include "bullets.h"
 #include "bullet.h"
 #include "bullet_kit.h"
+#include "bullets_animation.h"
 
 using namespace godot;
 

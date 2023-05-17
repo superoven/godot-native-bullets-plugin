@@ -28,6 +28,7 @@ public:
 	int32_t cycle = 0;
 	int32_t shape_index = -1;
 	Transform2D transform;
+	Transform2D visual_transform;
 	Vector2 velocity;
 	// Allows the bullet velocity to accelerate in this direction
 	Vector2 acceleration_basis_vector;
