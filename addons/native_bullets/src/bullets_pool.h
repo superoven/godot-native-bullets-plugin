@@ -86,8 +86,6 @@ protected:
 	virtual inline bool _process_bullet(BulletType* bullet, float delta);
 	virtual inline void _process_acceleration(BulletType* bullet, float delta);
 	
-	virtual inline void _process_modulate(BulletType* bullet, float delta);
-	
 	virtual inline void _process_animation(BulletType* bullet, float delta);
 
 	inline void _release_bullet(int32_t index);

@@ -37,6 +37,7 @@ public:
 	// Maximum Speed we can accelerate to
 	float_t max_speed = std::numeric_limits<float>::max();
 	Color modulate;
+	Color visual_modulate;
 	float glow_degree;
 	String animation_name;
 	float animation_start_time;
@@ -65,6 +66,9 @@ public:
 		register_property<Bullet, Vector2>("acceleration_basis_vector", &Bullet::acceleration_basis_vector, Vector2());
 		register_property<Bullet, float_t>("acceleration_speed", &Bullet::acceleration_speed, 0.0f);
 		register_property<Bullet, float_t>("max_speed", &Bullet::max_speed, 0.0f);
+
+		register_property<Bullet, String>("animation_name", &Bullet::animation_name, "");
+		register_property<Bullet, float_t>("animation_start_time", &Bullet::animation_start_time, 0.0f);
 
 		register_property<Bullet, Color>("modulate", &Bullet::modulate,
 			Color(1.0, 1.0, 1.0, 1.0), GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT,

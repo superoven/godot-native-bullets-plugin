@@ -46,22 +46,16 @@ void AbstractBulletsPool<Kit, BulletType>::_process_acceleration(BulletType* bul
 	bullet->velocity = bullet->velocity.clamped(bullet->max_speed);
 }
 
-// TODO: Deprecate
 template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::_process_modulate(BulletType* bullet, float delta) {
-	// float glow_modulate = bullet->modulate * bullet->glow_degree;
-	Color final_color = Color(
+void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet, float delta) {
+	bullet->visual_transform = bullet->transform;
+	Color base_color = Color(
 		bullet->modulate.r * bullet->glow_degree,
 		bullet->modulate.g * bullet->glow_degree,
 		bullet->modulate.b * bullet->glow_degree,
 		bullet->modulate.a
 	);
-	VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, final_color);
-}
-
-template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet, float delta) {
-	bullet->visual_transform = bullet->transform;
+	bullet->visual_modulate = base_color;
 	if (bullet->animation_name == "") {
 		return;
 	}
@@ -71,9 +65,7 @@ void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet
 			" No animation will play";
 		Godot::print_warning(
 			message.format(Array::make(bullet->animation_name)),
-			"_process_animation",
-			"",
-			0
+			__FUNCTION__, __FILE__, __LINE__
 		);
 		return;
 	}
@@ -83,24 +75,18 @@ void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet
 			"but it is not a `BulletsAnimation`. No animation will play";
 		Godot::print_warning(
 			message.format(Array::make(bullet->animation_name)),
-			"_process_animation",
-			"",
-			0
+			__FUNCTION__, __FILE__, __LINE__
 		);
 		return;
 	}
+	// Technically, the range property should prevent this, but check for 0 anyway
 	if (anim->duration == 0.0) {
 		Godot::print_error(
-			"BulletsAnimation->duration cannot be 0!",
-			"_process_animation",
-			"",
-			0
+			"BulletsAnimation.duration cannot be 0!",
+			__FUNCTION__, __FILE__, __LINE__
 		);
 		return;
 	}
-	// Godot::print("I got this node for animation_name: {0} -- {1}", bullet->animation_name, animation);
-	// float_t anim_end = animation->duration + bullet->animation_start_time;
-	// float_t anim_length = animation->duration + bullet->animation_start_time;
 	float_t lerp_val = Math::clamp(
 		(bullet->lifetime - bullet->animation_start_time) / anim->duration,
 		(float_t)0.0,
@@ -108,28 +94,29 @@ void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet
 	);
 	if(anim->scale_curve.is_valid()) {
 		float_t scale_degree = anim->scale_curve->interpolate(lerp_val);
-		// Godot::print("'{0}': lerp: {1}, scale_degree: {2}", bullet->animation_name, lerp_val, scale_degree);
-		Transform2D new_transform = bullet->transform;
-		new_transform.scale(Vector2(scale_degree, scale_degree) / bullet->transform.get_scale());
-		bullet->visual_transform = new_transform;
-		Godot::print("'{0}': visual_transform: {1} transform: {2}",
-			bullet->animation_name, bullet->visual_transform, bullet->transform
+		Transform2D new_transform = bullet->visual_transform;
+		new_transform.scale_basis(
+			Vector2(scale_degree, scale_degree) / bullet->transform.get_scale()
 		);
-		// if !(is_approx_equal(scale_degree, 1.0)) {
-		// }
-		// Transform2D transform = canvasItem->get_transform();
-		// transform.scale(Vector2(2.0, 2.0) / transform.get_scale());
-		// visualServer->canvas_item_set_transform(canvasItem->get_canvas_item(), transform);
+		bullet->visual_transform = new_transform;
 	}
-
-	// float glow_modulate = bullet->modulate * bullet->glow_degree;
-	// Color final_color = Color(
-	// 	bullet->modulate.r * bullet->glow_degree,
-	// 	bullet->modulate.g * bullet->glow_degree,
-	// 	bullet->modulate.b * bullet->glow_degree,
-	// 	bullet->modulate.a
-	// );
-	// VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, final_color);
+	if(anim->alpha_curve.is_valid()) {
+		float_t alpha_degree = anim->alpha_curve->interpolate(lerp_val);
+		Color final_color = Color(
+			base_color.r,
+			base_color.g,
+			base_color.b,
+			base_color.a * alpha_degree
+		);
+		bullet->visual_modulate = final_color;
+	}
+	if(anim->rotation_degree_curve.is_valid()) {
+		float_t rotation_degree = anim->rotation_degree_curve->interpolate(lerp_val);
+		float_t rotation_radians = (M_PI / 180.0) * rotation_degree;
+		Transform2D new_transform = bullet->visual_transform;
+		new_transform.rotated(rotation_radians);
+		bullet->visual_transform = new_transform;
+	}
 }
 
 //-- END Default "standard" implementation.
@@ -265,8 +252,8 @@ int32_t AbstractBulletsPool<Kit, BulletType>::_process(float delta) {
 				i += 1;
 				continue;
 			}
-			
 			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->visual_transform);
+			VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
 			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->transform);
 		}
 	} else {
@@ -279,8 +266,8 @@ int32_t AbstractBulletsPool<Kit, BulletType>::_process(float delta) {
 				i += 1;
 				continue;
 			}
-			
 			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->visual_transform);
+			VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
 		}
 	}
 	return amount_variation;

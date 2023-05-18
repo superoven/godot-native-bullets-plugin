@@ -143,7 +143,6 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 			VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, color);
 		}
 		_process_acceleration(bullet, delta);
-		_process_modulate(bullet, delta);
 		_process_animation(bullet, delta);
 
 		bullet->transform.set_origin(bullet->transform.get_origin() + bullet->velocity * delta);
