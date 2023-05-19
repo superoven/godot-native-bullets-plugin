@@ -104,6 +104,10 @@ public:
 	Node* get_bullets_animation(String animation_name);
 
 	void apply_bullet_properties_to_kit(Ref<BulletKit> kit, Dictionary properties);
+	void apply_bullets_animation_to_kit(Ref<BulletKit> kit, String animation_name);
+	
+	void enable_collisions_to_kit(Ref<BulletKit> kit, bool enabled);
+
 	void release_all();
 };
 

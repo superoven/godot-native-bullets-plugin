@@ -46,6 +46,8 @@ void Bullets::_register_methods() {
 	register_method("apply_bullets_animation", &Bullets::apply_bullets_animation);
 
 	register_method("apply_bullet_properties_to_kit", &Bullets::apply_bullet_properties_to_kit);
+	register_method("apply_bullets_animation_to_kit", &Bullets::apply_bullets_animation_to_kit);
+	register_method("enable_collisions_to_kit", &Bullets::enable_collisions_to_kit);
 	register_method("release_all", &Bullets::release_all);
 }
 
@@ -236,7 +238,6 @@ void Bullets::mount(Node* bullets_environment) {
 	for (int32_t i = 0; i < children.size(); i++) {
 		Node* child = Object::cast_to<Node>(children[i]);
 		String name = child->get_name();
-		Godot::print("Registering BulletsAnimation: '{0}'", name);
 		bullets_animations[name] = child;
 	}
 }
@@ -437,9 +438,6 @@ void Bullets::apply_bullets_animation(Variant id, String animation_name) {
 	if(pool_index >= 0) {
 		pool_sets[bullet_id[2]].pools[pool_index].pool->apply_bullets_animation(BulletID(bullet_id[0], bullet_id[1], bullet_id[2]), animation_name);
 	}
-	// apply_bullets_animation	
-
-	// Godot::print("This doesn't do anything yet!");
 }
 
 void Bullets::apply_bullet_properties(Variant id, Dictionary properties) {
@@ -454,6 +452,20 @@ void Bullets::apply_bullet_properties_to_kit(Ref<BulletKit> kit, Dictionary prop
 	if(kits_to_set_pool_indices.has(kit)) {
 		PoolIntArray set_pool_indices = kits_to_set_pool_indices[kit];
 		return pool_sets[set_pool_indices[0]].pools[set_pool_indices[1]].pool->apply_all(properties);
+	}
+}
+
+void Bullets::apply_bullets_animation_to_kit(Ref<BulletKit> kit, String animation_name) {
+	if(kits_to_set_pool_indices.has(kit)) {
+		PoolIntArray set_pool_indices = kits_to_set_pool_indices[kit];
+		return pool_sets[set_pool_indices[0]].pools[set_pool_indices[1]].pool->apply_bullets_animation_to_all(animation_name);
+	}
+}
+
+void Bullets::enable_collisions_to_kit(Ref<BulletKit> kit, bool enabled) {
+	if(kits_to_set_pool_indices.has(kit)) {
+		PoolIntArray set_pool_indices = kits_to_set_pool_indices[kit];
+		return pool_sets[set_pool_indices[0]].pools[set_pool_indices[1]].pool->enable_collisions(enabled);
 	}
 }
 

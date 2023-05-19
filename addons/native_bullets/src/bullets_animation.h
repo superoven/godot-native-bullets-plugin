@@ -5,6 +5,8 @@
 #include <Transform2D.hpp>
 #include <Node.hpp>
 #include <Curve.hpp>
+#include <ResourceSaver.hpp>
+#include <Resource.hpp>
 
 #include <limits>
 
@@ -25,7 +27,10 @@ public:
         duration = DEFAULT_DURATION;
     }
 
-	void _init() {}
+	void _init() {
+        // scale_curve.resource_local_to_scene = true;
+        // scale_curve->set_flags(scale_curve->get_flags() | Resource::FLAG_LOCAL_TO_SCENE);
+    }
 
     void _ready() {}
 

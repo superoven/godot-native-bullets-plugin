@@ -68,6 +68,8 @@ public:
 	virtual Variant get_bullet_property(BulletID id, String property) = 0;
 	virtual void apply_bullet_properties(BulletID id, Dictionary properties) = 0;
 	virtual void apply_bullets_animation(BulletID id, String animation_name) = 0;
+	virtual void apply_bullets_animation_to_all(String animation_name) = 0;
+	virtual void enable_collisions(bool enable) = 0;
 
 	virtual void apply_all(Dictionary properties) = 0;
 	virtual int32_t release_all() = 0;
@@ -113,6 +115,9 @@ public:
 	virtual void apply_bullet_properties(BulletID id, Dictionary properties) override;
 	
 	virtual void apply_bullets_animation(BulletID id, String animation_name) override;
+	virtual void apply_bullets_animation_to_all(String animation_name) override;
+
+	virtual void enable_collisions(bool enable) override;
 
 	virtual void apply_all(Dictionary properties) override;
 	virtual int32_t release_all() override;

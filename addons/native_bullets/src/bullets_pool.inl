@@ -453,6 +453,26 @@ void AbstractBulletsPool<Kit, BulletType>::apply_all(Dictionary properties) {
 }
 
 template <class Kit, class BulletType>
+void AbstractBulletsPool<Kit, BulletType>::enable_collisions(bool enable) {
+	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
+		BulletType* bullet = bullets[i];
+		Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, !enable);
+	}
+}
+
+			
+
+
+template <class Kit, class BulletType>
+void AbstractBulletsPool<Kit, BulletType>::apply_bullets_animation_to_all(String animation_name) {
+	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
+		BulletType* bullet = bullets[i];
+		bullet->animation_name = animation_name;
+		bullet->animation_start_time = bullet->lifetime;
+	}
+}
+
+template <class Kit, class BulletType>
 Variant AbstractBulletsPool<Kit, BulletType>::get_bullet_property(BulletID id, String property) {
 	if(is_bullet_valid(id)) {
 		int32_t bullet_index = shapes_to_indices[id.index - starting_shape_index];
