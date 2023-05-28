@@ -11,6 +11,10 @@ export(Array, int) var pools_sizes: Array
 export(Array, NodePath) var parents_hints: Array
 export(Array, int) var z_indices: Array
 
+export(NodePath) var bullet_animations = get_node(bullet_animations) if bullet_animations else null
+
+var _ba_dict = {}
+
 var properties_regex : RegEx
 
 
@@ -37,6 +41,9 @@ func _ready():
 #		i += 1
 	if current and is_instance_valid(Bullets):
 		Bullets.mount(self)
+		if self.bullet_animations:
+			for node in self.bullet_animations.get_children():
+				self._ba_dict[node.name] = node
 
 
 func _exit_tree():
@@ -44,11 +51,25 @@ func _exit_tree():
 		return
 	if is_instance_valid(Bullets):
 		Bullets.unmount(self)
+		self._ba_dict = {}
 
 
 func reload():
 	_set_current(false)
 	_set_current(true)
+
+
+func get_bullets_animation(name: String):
+	if self._ba_dict.has(name):
+		return self._ba_dict[name]
+	return null
+
+
+func find_bullet_kit(bullet_kit):
+       for i in range(self.bullet_kits.size()):
+               if self.bullet_kits[i] == bullet_kit:
+                       return i
+       return -1
 
 
 func _set_current(value):

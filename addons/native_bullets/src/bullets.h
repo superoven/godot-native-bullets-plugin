@@ -58,9 +58,9 @@ private:
 public:
 	static inline Bullets *get_singleton()
 	{
-		if (!Bullets::_singleton) {
-			Bullets::_singleton = new Bullets;
-		}
+		// if (!Bullets::_singleton) {
+		// 	Bullets::_singleton = new Bullets;
+		// }
 		return Bullets::_singleton;
 	}
 
@@ -108,7 +108,7 @@ public:
 	
 	void enable_collisions_to_kit(Ref<BulletKit> kit, bool enabled);
 
-	void release_all();
+	// void release_all();
 };
 
 #include "bullet_kit.h"

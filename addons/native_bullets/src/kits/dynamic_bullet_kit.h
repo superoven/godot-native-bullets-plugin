@@ -126,7 +126,7 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 			float rotation_offset = kit->rotation_offset_over_lifetime->interpolate(adjusted_lifetime);
 			float absolute_rotation = bullet->starting_transform.get_rotation() + rotation_offset;
 
-			bullet->velocity = bullet->velocity.rotated(absolute_rotation - bullet->transform.get_rotation());
+			bullet->velocity = bullet->velocity.rotated(absolute_rotation - bullet->starting_transform.get_rotation());
 		}
 		if(kit->alpha_over_lifetime.is_valid()) {
 			float alpha = kit->alpha_over_lifetime->interpolate(adjusted_lifetime);

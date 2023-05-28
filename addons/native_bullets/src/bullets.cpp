@@ -48,13 +48,16 @@ void Bullets::_register_methods() {
 	register_method("apply_bullet_properties_to_kit", &Bullets::apply_bullet_properties_to_kit);
 	register_method("apply_bullets_animation_to_kit", &Bullets::apply_bullets_animation_to_kit);
 	register_method("enable_collisions_to_kit", &Bullets::enable_collisions_to_kit);
-	register_method("release_all", &Bullets::release_all);
+	// register_method("release_all", &Bullets::release_all);
 }
 
-Bullets::Bullets() { }
+Bullets::Bullets() {
+	Bullets::_singleton = this;
+}
 
 Bullets::~Bullets() {
 	_clear_rids();
+	Bullets::_singleton = nullptr;
 }
 
 void Bullets::_init() {
@@ -107,13 +110,14 @@ int32_t Bullets::_get_pool_index(int32_t set_index, int32_t bullet_index) {
 }
 
 void Bullets::mount(Node* bullets_environment) {
-	Bullets::_singleton = this;
 	if(bullets_environment == nullptr || this->bullets_environment == bullets_environment) {
 		return;
 	}
 	if(this->bullets_environment != nullptr) {
 		this->bullets_environment->set("current", false);
 	}
+
+	// Bullets::_singleton = this;
 	
 	this->bullets_environment = bullets_environment;
 	this->bullets_environment->set("current", true);
@@ -256,10 +260,13 @@ void Bullets::unmount(Node* bullets_environment) {
 		total_bullets = 0;
 
 		this->bullets_environment = nullptr;
+	} else {
+		Godot::print("Unmounting but we didn't have the right bullets_environment??");
 	}
 	if(bullets_environment != nullptr) {
 		bullets_environment->set("current", false);
 	}
+	// Bullets::_singleton = nullptr;
 }
 
 Node* Bullets::get_bullets_environment() {
@@ -479,18 +486,18 @@ Variant Bullets::get_bullet_property(Variant id, String property) {
 	return Variant();
 }
 
-void Bullets::release_all() {
-	int32_t bullets_variation = 0;
-	// pool_sets[i].pools[j].pool->_process(delta);
+// void Bullets::release_all() {
+// 	int32_t bullets_variation = 0;
+// 	// pool_sets[i].pools[j].pool->_process(delta);
 
-	for(int32_t i = 0; i < pool_sets.size(); i++) {
-		for(int32_t j = 0; j < pool_sets[i].pools.size(); j++) {
-			bullets_variation += pool_sets[i].pools[j].pool->release_all();
-		}
-	}
-	//available_bullets = 0;
-	// active_bullets = 0;
+// 	for(int32_t i = 0; i < pool_sets.size(); i++) {
+// 		for(int32_t j = 0; j < pool_sets[i].pools.size(); j++) {
+// 			bullets_variation += pool_sets[i].pools[j].pool->release_all();
+// 		}
+// 	}
+// 	//available_bullets = 0;
+// 	// active_bullets = 0;
 
-	available_bullets -= bullets_variation;
-	active_bullets += bullets_variation;
-}
+// 	available_bullets -= bullets_variation;
+// 	active_bullets += bullets_variation;
+// }

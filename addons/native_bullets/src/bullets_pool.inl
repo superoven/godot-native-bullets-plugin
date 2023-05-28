@@ -59,7 +59,11 @@ void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet
 	if (bullet->animation_name == "") {
 		return;
 	}
-	Node* raw_anim_node = Bullets::get_singleton()->get_bullets_animation(bullet->animation_name);
+	Bullets* b = Bullets::get_singleton();
+	if (b == nullptr) {
+		return;
+	}
+	Node* raw_anim_node = b->get_bullets_animation(bullet->animation_name);
 	if (raw_anim_node == nullptr) {
 		String message = "Tried to find animation '{0}', but it doesn't exist."
 			" No animation will play";
@@ -71,7 +75,7 @@ void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet
 	}
 	BulletsAnimation* anim = Object::cast_to<BulletsAnimation>(raw_anim_node);
 	if (anim == nullptr) {
-		String message = "Found a Node called '{0}' under the `BulletsEnvironment`, "
+		String message = "Found a Node called '{0}' under the `BulletsEnvironment.bullet_animations`, "
 			"but it is not a `BulletsAnimation`. No animation will play";
 		Godot::print_warning(
 			message.format(Array::make(bullet->animation_name)),
@@ -460,9 +464,6 @@ void AbstractBulletsPool<Kit, BulletType>::enable_collisions(bool enable) {
 	}
 }
 
-			
-
-
 template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::apply_bullets_animation_to_all(String animation_name) {
 	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
@@ -480,36 +481,4 @@ Variant AbstractBulletsPool<Kit, BulletType>::get_bullet_property(BulletID id, S
 		return bullets[bullet_index]->get(property);
 	}
 	return Variant();
-}
-
-template <class Kit, class BulletType>
-int32_t AbstractBulletsPool<Kit, BulletType>::release_all() {
-	// Release all bullets in this pool
-	int32_t bullets_variation = 0;
-	int32_t num_didnt_exist = 0;
-	Godot::print("Removing for pool! Available: {0} Active: {1}", available_bullets, active_bullets);
-	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
-		BulletID id = get_bullet_from_shape(i);
-		if (release_bullet(id)) {
-			bullets_variation -= 1;
-		} else {
-			num_didnt_exist += 0;
-		}
-		// if(is_bullet_existing(i)) {
-		// 	_release_bullet(i);
-		// 	bullets_variation -= 1;
-		// 	i += 1;
-		// 	available_bullets += 1;
-		// } else {
-		// 	num_didnt_exist += 1;
-		// }
-		// BulletType* bullet = bullets[i];
-		// this->release_bullet(i);
-		// if(is_bullet_existing(i)) {
-		// 	// Godot::print("{0} apparently exists: removing", i);
-			
-		// }
-	}
-	Godot::print("Removing {0} bullets! from pool! {1} didn't exist", bullets_variation, num_didnt_exist);
-	return bullets_variation;
 }
