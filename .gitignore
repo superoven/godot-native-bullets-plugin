@@ -1,6 +1,7 @@
 
 # Project-specific ignores
 addons/native_bullets/tmp/*
+addons/native_bullets/bin/*
 
 # Godot-specific ignores
 .import/
