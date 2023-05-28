@@ -3,6 +3,8 @@
 #include <World2D.hpp>
 #include <Physics2DServer.hpp>
 #include <Viewport.hpp>
+#include <Engine.hpp>
+// #include <EditorNode.hpp>
 #include <Font.hpp>
 #include <Math.hpp>
 
@@ -59,6 +61,9 @@ void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet
 	if (bullet->animation_name == "") {
 		return;
 	}
+	// Bullets* b = Object::cast_to<Bullets>(EditorNode::get_singleton()->get_autoload_singleton("Bullets"));
+	
+	// Bullets* b = Object::cast_to<Bullets>(Engine::get_singleton()->get_singleton("native_bullets.Bullets"));
 	Bullets* b = Bullets::get_singleton();
 	if (b == nullptr) {
 		return;

@@ -32,18 +32,11 @@ func _enter_tree():
 func _ready():
 	if Engine.editor_hint:
 		return
-#	var i = 0
-#	for parent_path in parents:
-#		if parent_path != null:
-#			parents[i] = get_node(parent_path)
-#		else:
-#			parents[i] = null
-#		i += 1
 	if current and is_instance_valid(Bullets):
 		Bullets.mount(self)
-		if self.bullet_animations:
-			for node in self.bullet_animations.get_children():
-				self._ba_dict[node.name] = node
+		# if self.bullet_animations:
+		# 	for node in self.bullet_animations.get_children():
+		# 		self._ba_dict[node.name] = node
 
 
 func _exit_tree():
@@ -66,10 +59,10 @@ func get_bullets_animation(name: String):
 
 
 func find_bullet_kit(bullet_kit):
-       for i in range(self.bullet_kits.size()):
-               if self.bullet_kits[i] == bullet_kit:
-                       return i
-       return -1
+	for i in range(self.bullet_kits.size()):
+		if self.bullet_kits[i] == bullet_kit:
+			return i
+	return -1
 
 
 func _set_current(value):
