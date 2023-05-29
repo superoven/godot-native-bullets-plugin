@@ -32,6 +32,8 @@ protected:
 	RID shared_area;
 	int32_t starting_shape_index;
 
+	Dictionary bullets_animations = {};
+
 	Rect2 active_rect;
 
 	template<typename T>
@@ -48,11 +50,13 @@ public:
 	BulletsPool();
 	virtual ~BulletsPool();
 
-	virtual void _init(/*RID canvas_parent, Viewport* viewport, */Node* parent_hint, RID shared_area, int32_t starting_shape_index,
+	virtual void _init(Node* parent_hint, RID shared_area, int32_t starting_shape_index,
 		int32_t set_index, Ref<BulletKit> kit, int32_t pool_size, int32_t z_index) = 0;
 	
 	int32_t get_available_bullets();
 	int32_t get_active_bullets();
+
+	Node* get_bullets_animation(String animation_name);
 
 	virtual int32_t _process(float delta) = 0;
 
@@ -97,7 +101,7 @@ public:
 	AbstractBulletsPool() {}
 	virtual ~AbstractBulletsPool();
 
-	virtual void _init(/*RID canvas_parent, Viewport* viewport, */Node* parent_hint, RID shared_area, int32_t starting_shape_index,
+	virtual void _init(Node* parent_hint, RID shared_area, int32_t starting_shape_index,
 		int32_t set_index, Ref<BulletKit> kit, int32_t pool_size, int32_t z_index) override;
 
 	virtual int32_t _process(float delta) override;

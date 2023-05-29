@@ -4,7 +4,6 @@
 #include <Physics2DServer.hpp>
 #include <Viewport.hpp>
 #include <Engine.hpp>
-// #include <EditorNode.hpp>
 #include <Font.hpp>
 #include <Math.hpp>
 
@@ -61,39 +60,23 @@ void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet
 	if (bullet->animation_name == "") {
 		return;
 	}
-	// Bullets* b = Object::cast_to<Bullets>(EditorNode::get_singleton()->get_autoload_singleton("Bullets"));
-	
-	// Bullets* b = Object::cast_to<Bullets>(Engine::get_singleton()->get_singleton("native_bullets.Bullets"));
-	Bullets* b = Bullets::get_singleton();
-	if (b == nullptr) {
-		return;
-	}
-	Node* raw_anim_node = b->get_bullets_animation(bullet->animation_name);
+	Node* raw_anim_node = this->get_bullets_animation(bullet->animation_name);
 	if (raw_anim_node == nullptr) {
 		String message = "Tried to find animation '{0}', but it doesn't exist."
 			" No animation will play";
-		Godot::print_warning(
-			message.format(Array::make(bullet->animation_name)),
-			__FUNCTION__, __FILE__, __LINE__
-		);
+		WARN_PRINT(message.format(Array::make(bullet->animation_name)));
 		return;
 	}
 	BulletsAnimation* anim = Object::cast_to<BulletsAnimation>(raw_anim_node);
 	if (anim == nullptr) {
 		String message = "Found a Node called '{0}' under the `BulletsEnvironment.bullet_animations`, "
 			"but it is not a `BulletsAnimation`. No animation will play";
-		Godot::print_warning(
-			message.format(Array::make(bullet->animation_name)),
-			__FUNCTION__, __FILE__, __LINE__
-		);
+		WARN_PRINT(message.format(Array::make(bullet->animation_name)));
 		return;
 	}
 	// Technically, the range property should prevent this, but check for 0 anyway
 	if (anim->duration == 0.0) {
-		Godot::print_error(
-			"BulletsAnimation.duration cannot be 0!",
-			__FUNCTION__, __FILE__, __LINE__
-		);
+		ERR_PRINT("BulletsAnimation.duration cannot be 0!");
 		return;
 	}
 	float_t lerp_val = Math::clamp(
@@ -141,6 +124,7 @@ AbstractBulletsPool<Kit, BulletType>::~AbstractBulletsPool() {
 
 	delete[] bullets;
 	delete[] shapes_to_indices;
+	bullets_animations.clear();
 }
 
 template <class Kit, class BulletType>
@@ -151,7 +135,6 @@ void AbstractBulletsPool<Kit, BulletType>::_init(Node* parent_hint, RID shared_a
 	// otherwise the bullets would not collide with anything anyways.
 	this->collisions_enabled = kit->collisions_enabled && kit->collision_shape.is_valid() &&
 		((int64_t)kit->collision_layer + (int64_t)kit->collision_mask) != 0;
-	// this->viewport = viewport;
 	this->shared_area = shared_area;
 	this->starting_shape_index = starting_shape_index;
 	this->kit = kit;
@@ -177,6 +160,14 @@ void AbstractBulletsPool<Kit, BulletType>::_init(Node* parent_hint, RID shared_a
 		this->canvas_parent = canvas_layer->get_canvas();
 	} else {
 		this->canvas_parent = viewport->find_world_2d()->get_canvas();
+	}
+
+	// Put the bullet animations into the object directly
+	Array children = parent_hint->get_children();
+	for (int32_t i = 0; i < children.size(); i++) {
+		Node* child = Object::cast_to<Node>(children[i]);
+		String name = child->get_name();
+		this->bullets_animations[name] = child;
 	}
 
 	available_bullets = pool_size;

@@ -19,9 +19,7 @@ using namespace godot;
 
 class Bullets : public Node2D {
 	GODOT_CLASS(Bullets, Node2D)
-	
-	static Bullets *_singleton;
-	
+
 private:
 	// A pool internal representation with related properties.
 	struct PoolKit {
@@ -56,14 +54,6 @@ private:
 	int32_t _get_pool_index(int32_t set_index, int32_t bullet_index);
 
 public:
-	static inline Bullets *get_singleton()
-	{
-		// if (!Bullets::_singleton) {
-		// 	Bullets::_singleton = new Bullets;
-		// }
-		return Bullets::_singleton;
-	}
-
 	static void _register_methods();
 
 	Bullets();
@@ -98,17 +88,14 @@ public:
 
 	void set_bullet_property(Variant id, String property, Variant value);
 	Variant get_bullet_property(Variant id, String property);
+
 	void apply_bullet_properties(Variant id, Dictionary properties);
-	void apply_bullets_animation(Variant id, String animation_name);
-
-	Node* get_bullets_animation(String animation_name);
-
 	void apply_bullet_properties_to_kit(Ref<BulletKit> kit, Dictionary properties);
+
+	void apply_bullets_animation(Variant id, String animation_name);
 	void apply_bullets_animation_to_kit(Ref<BulletKit> kit, String animation_name);
 	
 	void enable_collisions_to_kit(Ref<BulletKit> kit, bool enabled);
-
-	// void release_all();
 };
 
 #include "bullet_kit.h"

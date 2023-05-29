@@ -11,7 +11,6 @@
 
 using namespace godot;
 
-Bullets* Bullets::_singleton = nullptr;
 
 void Bullets::_register_methods() {
 	register_method("_physics_process", &Bullets::_physics_process);
@@ -48,16 +47,12 @@ void Bullets::_register_methods() {
 	register_method("apply_bullet_properties_to_kit", &Bullets::apply_bullet_properties_to_kit);
 	register_method("apply_bullets_animation_to_kit", &Bullets::apply_bullets_animation_to_kit);
 	register_method("enable_collisions_to_kit", &Bullets::enable_collisions_to_kit);
-	// register_method("release_all", &Bullets::release_all);
 }
 
-Bullets::Bullets() {
-	Bullets::_singleton = this;
-}
+Bullets::Bullets() {}
 
 Bullets::~Bullets() {
 	_clear_rids();
-	Bullets::_singleton = nullptr;
 }
 
 void Bullets::_init() {
@@ -116,8 +111,6 @@ void Bullets::mount(Node* bullets_environment) {
 	if(this->bullets_environment != nullptr) {
 		this->bullets_environment->set("current", false);
 	}
-
-	// Bullets::_singleton = this;
 	
 	this->bullets_environment = bullets_environment;
 	this->bullets_environment->set("current", true);
@@ -200,23 +193,10 @@ void Bullets::mount(Node* bullets_environment) {
 			int32_t pool_size = pools_sizes[kit_index_in_node];
 
 			Node* parent_node_hint = nullptr;
-			//RID actual_parent_canvas = default_parent_canvas;
 
-			NodePath parent_path = parents_paths[0];//[kit_index_in_node];
-			// Godot::print("Parent hint path is {0}", parent_path);
+			NodePath parent_path = parents_paths[0];
 			if (!parent_path.is_empty()) {
-				// Godot::print("Parent hint path is not empty");
 				parent_node_hint = bullets_environment->get_node(parent_path);
-				// Godot::print("Viewport node is {0}", parent_node_hint);
-				// if (viewport_node != nullptr) {
-				// 	actual_viewport = viewport_node;
-					// CanvasItem* parent_canvas = Object::cast_to<CanvasItem>(parent_node);
-					// if (parent_canvas != nullptr) {
-					// 	actual_parent_canvas = parent_canvas->get_canvas_item();
-					// } else {
-					// 	actual_parent_canvas = actual_viewport->find_world_2d()->get_canvas();
-					// }
-				// }
 			}
 			if (parent_node_hint == nullptr) {
 				parent_node_hint = bullets_environment;
@@ -227,7 +207,7 @@ void Bullets::mount(Node* bullets_environment) {
 			pool_sets[i].pools[j].size = pool_size;
 			pool_sets[i].pools[j].z_index = z_indices[kit_index_in_node];
 
-			pool_sets[i].pools[j].pool->_init(/*actual_parent_canvas, */parent_node_hint, shared_area, pool_set_available_bullets,
+			pool_sets[i].pools[j].pool->_init(parent_node_hint, shared_area, pool_set_available_bullets,
 				i, kit, pool_size, z_indices[kit_index_in_node]);
 
 			pool_set_available_bullets += pool_size;
@@ -236,14 +216,6 @@ void Bullets::mount(Node* bullets_environment) {
 		available_bullets += pool_set_available_bullets;
 	}
 	total_bullets = available_bullets;
-
-	// Register the BulletsAnimations
-	Array children = bullets_environment->get_children();
-	for (int32_t i = 0; i < children.size(); i++) {
-		Node* child = Object::cast_to<Node>(children[i]);
-		String name = child->get_name();
-		bullets_animations[name] = child;
-	}
 }
 
 void Bullets::unmount(Node* bullets_environment) {
@@ -266,18 +238,10 @@ void Bullets::unmount(Node* bullets_environment) {
 	if(bullets_environment != nullptr) {
 		bullets_environment->set("current", false);
 	}
-	// Bullets::_singleton = nullptr;
 }
 
 Node* Bullets::get_bullets_environment() {
 	return bullets_environment;
-}
-
-Node* Bullets::get_bullets_animation(String animation_name) {
-	if (bullets_animations.has(animation_name)) {
-		return bullets_animations[animation_name];
-	}
-	return nullptr;
 }
 
 Variant Bullets::spawn_bullet(Ref<BulletKit> kit, Dictionary properties) {
@@ -485,19 +449,3 @@ Variant Bullets::get_bullet_property(Variant id, String property) {
 	}
 	return Variant();
 }
-
-// void Bullets::release_all() {
-// 	int32_t bullets_variation = 0;
-// 	// pool_sets[i].pools[j].pool->_process(delta);
-
-// 	for(int32_t i = 0; i < pool_sets.size(); i++) {
-// 		for(int32_t j = 0; j < pool_sets[i].pools.size(); j++) {
-// 			bullets_variation += pool_sets[i].pools[j].pool->release_all();
-// 		}
-// 	}
-// 	//available_bullets = 0;
-// 	// active_bullets = 0;
-
-// 	available_bullets -= bullets_variation;
-// 	active_bullets += bullets_variation;
-// }
