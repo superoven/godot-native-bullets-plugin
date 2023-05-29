@@ -113,23 +113,24 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 	// void _disable_bullet(Bullet* bullet); Use default implementation.
 
 	bool _process_bullet(DynamicBullet* bullet, float delta) {
-		float adjusted_lifetime = bullet->lifetime / kit->lifetime_curves_span;
+		float_t adjusted_lifetime = bullet->lifetime / kit->lifetime_curves_span;
 		if(kit->lifetime_curves_loop) {
 			adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
 		}
 
 		if(kit->speed_multiplier_over_lifetime.is_valid()) {
-			float speed_multiplier = kit->speed_multiplier_over_lifetime->interpolate(adjusted_lifetime);
+			float_t speed_multiplier = kit->speed_multiplier_over_lifetime->interpolate(adjusted_lifetime);
 			bullet->velocity = bullet->velocity.normalized() * bullet->starting_speed * speed_multiplier;
 		}
 		if(kit->rotation_offset_over_lifetime.is_valid()) {
-			float rotation_offset = kit->rotation_offset_over_lifetime->interpolate(adjusted_lifetime);
-			float absolute_rotation = bullet->starting_transform.get_rotation() + rotation_offset;
-
-			bullet->velocity = bullet->velocity.rotated(absolute_rotation - bullet->starting_transform.get_rotation());
+			float_t abs_rotation_offset = kit->rotation_offset_over_lifetime->interpolate(adjusted_lifetime);
+			float_t abs_rotation_radians = (M_PI / 180.0) * abs_rotation_offset;
+			float_t result = abs_rotation_radians + bullet->starting_transform.get_rotation();
+			float_t offset = result - bullet->velocity.angle();
+			bullet->velocity = bullet->velocity.rotated(offset);
 		}
 		if(kit->alpha_over_lifetime.is_valid()) {
-			float alpha = kit->alpha_over_lifetime->interpolate(adjusted_lifetime);
+			float_t alpha = kit->alpha_over_lifetime->interpolate(adjusted_lifetime);
 			Color color = bullet->modulate;
 			color.a = alpha;
 			bullet->modulate = color;
