@@ -37,7 +37,6 @@ func _exit_tree():
 		return
 	if is_instance_valid(Bullets):
 		Bullets.unmount(self)
-		self._ba_dict = {}
 
 
 func reload():

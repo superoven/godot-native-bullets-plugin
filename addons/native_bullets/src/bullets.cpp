@@ -49,7 +49,7 @@ void Bullets::_register_methods() {
 	register_method("enable_collisions_to_kit", &Bullets::enable_collisions_to_kit);
 }
 
-Bullets::Bullets() {}
+Bullets::Bullets() { }
 
 Bullets::~Bullets() {
 	_clear_rids();
@@ -123,7 +123,6 @@ void Bullets::mount(Node* bullets_environment) {
 	pool_sets.clear();
 	areas_to_pool_set_indices.clear();
 	kits_to_set_pool_indices.clear();
-	bullets_animations.clear();
 	_clear_rids();
 	shared_areas.clear();
 
@@ -223,7 +222,6 @@ void Bullets::unmount(Node* bullets_environment) {
 		pool_sets.clear();
 		areas_to_pool_set_indices.clear();
 		kits_to_set_pool_indices.clear();
-		bullets_animations.clear();
 		_clear_rids();
 		shared_areas.clear();
 
@@ -232,8 +230,6 @@ void Bullets::unmount(Node* bullets_environment) {
 		total_bullets = 0;
 
 		this->bullets_environment = nullptr;
-	} else {
-		Godot::print("Unmounting but we didn't have the right bullets_environment??");
 	}
 	if(bullets_environment != nullptr) {
 		bullets_environment->set("current", false);

@@ -38,8 +38,6 @@ private:
 	Dictionary areas_to_pool_set_indices;
 	// Maps each BulletKit to the corresponding PoolKit index.
 	Dictionary kits_to_set_pool_indices;
-	// Maps a name to each BulletAnimation under the BulletEnvironment
-	Dictionary bullets_animations;
 
 	Node* bullets_environment = nullptr;
 
