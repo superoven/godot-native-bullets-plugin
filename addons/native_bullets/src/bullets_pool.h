@@ -61,7 +61,6 @@ public:
 	virtual int32_t _process(float delta) = 0;
 
 	virtual BulletID spawn_bullet(Dictionary properties) = 0;
-	virtual BulletID obtain_bullet() = 0;
 	virtual bool release_bullet(BulletID id) = 0;
 	virtual bool is_bullet_valid(BulletID id) = 0;
 
@@ -71,8 +70,10 @@ public:
 	virtual void set_bullet_property(BulletID id, String property, Variant value) = 0;
 	virtual Variant get_bullet_property(BulletID id, String property) = 0;
 	virtual void apply_bullet_properties(BulletID id, Dictionary properties) = 0;
+
 	virtual void apply_bullets_animation(BulletID id, String animation_name) = 0;
 	virtual void apply_bullets_animation_to_all(String animation_name) = 0;
+
 	virtual void enable_collisions(bool enable) = 0;
 
 	virtual void apply_all(Dictionary properties) = 0;
@@ -106,7 +107,6 @@ public:
 	virtual int32_t _process(float delta) override;
 
 	virtual BulletID spawn_bullet(Dictionary properties) override;
-	virtual BulletID obtain_bullet() override;
 	virtual bool release_bullet(BulletID id) override;
 	virtual bool is_bullet_valid(BulletID id) override;
 

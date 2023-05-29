@@ -34,7 +34,6 @@ extern "C" void GDN_EXPORT godot_nativescript_init(void *handle) {
 	godot::register_class<FollowingDynamicBulletKit>();
 
 	godot::register_class<BulletsAnimation>();
-	godot::register_tool_class<BulletsAnimation>();
 	
 	// Custom Bullet Kits.
 	//godot::register_class<CustomBulletKit>();

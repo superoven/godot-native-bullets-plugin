@@ -66,7 +66,7 @@ public:
 	Node* get_bullets_environment();
 
 	Variant spawn_bullet(Ref<BulletKit> kit, Dictionary properties);
-	Variant obtain_bullet(Ref<BulletKit> kit);
+	// Variant obtain_bullet(Ref<BulletKit> kit);
 	bool release_bullet(Variant id);
 
 	bool is_bullet_valid(Variant id);

@@ -20,7 +20,6 @@ void Bullets::_register_methods() {
 	register_method("get_bullets_environment", &Bullets::get_bullets_environment);
 
 	register_method("spawn_bullet", &Bullets::spawn_bullet);
-	register_method("obtain_bullet", &Bullets::obtain_bullet);
 	register_method("release_bullet", &Bullets::release_bullet);
 
 	register_method("is_bullet_valid", &Bullets::is_bullet_valid);
@@ -250,26 +249,6 @@ Variant Bullets::spawn_bullet(Ref<BulletKit> kit, Dictionary properties) {
 			active_bullets += 1;
 
 			BulletID bullet_id = pool->spawn_bullet(properties);
-			PoolIntArray to_return = invalid_id;
-			to_return.set(0, bullet_id.index);
-			to_return.set(1, bullet_id.cycle);
-			to_return.set(2, bullet_id.set);
-			return to_return;
-		}
-	}
-	return invalid_id;
-}
-
-Variant Bullets::obtain_bullet(Ref<BulletKit> kit) {
-	if(available_bullets > 0 && kits_to_set_pool_indices.has(kit)) {
-		PoolIntArray set_pool_indices = kits_to_set_pool_indices[kit].operator PoolIntArray();
-		BulletsPool* pool = pool_sets[set_pool_indices[0]].pools[set_pool_indices[1]].pool.get();
-
-		if(pool->get_available_bullets() > 0) {
-			available_bullets -= 1;
-			active_bullets += 1;
-
-			BulletID bullet_id = pool->obtain_bullet();
 			PoolIntArray to_return = invalid_id;
 			to_return.set(0, bullet_id.index);
 			to_return.set(1, bullet_id.cycle);

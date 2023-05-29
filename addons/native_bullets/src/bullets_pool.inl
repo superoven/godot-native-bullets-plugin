@@ -303,28 +303,6 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 }
 
 template <class Kit, class BulletType>
-BulletID AbstractBulletsPool<Kit, BulletType>::obtain_bullet() {
-	if(available_bullets > 0) {
-		available_bullets -= 1;
-		active_bullets += 1;
-
-		BulletType* bullet = bullets[available_bullets];
-
-		VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->transform);
-		if(collisions_enabled)
-			Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, false);
-			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->transform);
-		
-		// if(collisions_enabled)
-
-		_enable_bullet(bullet);
-
-		return BulletID(bullet->shape_index, bullet->cycle, set_index);
-	}
-	return BulletID(-1, -1, -1);
-}
-
-template <class Kit, class BulletType>
 bool AbstractBulletsPool<Kit, BulletType>::release_bullet(BulletID id) {
 	if(id.index >= starting_shape_index && id.index < starting_shape_index + pool_size && id.set == set_index) {
 		int32_t bullet_index = shapes_to_indices[id.index - starting_shape_index];
