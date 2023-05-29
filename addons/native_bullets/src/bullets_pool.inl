@@ -60,55 +60,55 @@ void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet
 	if (bullet->animation_name == "") {
 		return;
 	}
-	// Node* raw_anim_node = this->get_bullets_animation(bullet->animation_name);
-	// if (raw_anim_node == nullptr) {
-	// 	String message = "Tried to find animation '{0}', but it doesn't exist."
-	// 		" No animation will play";
-	// 	WARN_PRINT(message.format(Array::make(bullet->animation_name)));
-	// 	return;
-	// }
-	// BulletsAnimation* anim = Object::cast_to<BulletsAnimation>(raw_anim_node);
-	// if (anim == nullptr) {
-	// 	String message = "Found a Node called '{0}' under the `BulletsEnvironment.bullet_animations`, "
-	// 		"but it is not a `BulletsAnimation`. No animation will play";
-	// 	WARN_PRINT(message.format(Array::make(bullet->animation_name)));
-	// 	return;
-	// }
-	// // Technically, the range property should prevent this, but check for 0 anyway
-	// if (anim->duration == 0.0) {
-	// 	ERR_PRINT("BulletsAnimation.duration cannot be 0!");
-	// 	return;
-	// }
-	// float_t lerp_val = Math::clamp(
-	// 	(bullet->lifetime - bullet->animation_start_time) / anim->duration,
-	// 	(float_t)0.0,
-	// 	(float_t)1.0
-	// );
-	// if(anim->scale_curve.is_valid()) {
-	// 	float_t scale_degree = anim->scale_curve->interpolate(lerp_val);
-	// 	Transform2D new_transform = bullet->visual_transform;
-	// 	new_transform.scale_basis(
-	// 		Vector2(scale_degree, scale_degree) / bullet->transform.get_scale()
-	// 	);
-	// 	bullet->visual_transform = new_transform;
-	// }
-	// if(anim->alpha_curve.is_valid()) {
-	// 	float_t alpha_degree = anim->alpha_curve->interpolate(lerp_val);
-	// 	Color final_color = Color(
-	// 		base_color.r,
-	// 		base_color.g,
-	// 		base_color.b,
-	// 		base_color.a * alpha_degree
-	// 	);
-	// 	bullet->visual_modulate = final_color;
-	// }
-	// if(anim->rotation_degree_curve.is_valid()) {
-	// 	float_t rotation_degree = anim->rotation_degree_curve->interpolate(lerp_val);
-	// 	float_t rotation_radians = (M_PI / 180.0) * rotation_degree;
-	// 	Transform2D new_transform = bullet->visual_transform;
-	// 	new_transform.rotated(rotation_radians);
-	// 	bullet->visual_transform = new_transform;
-	// }
+	Node* raw_anim_node = this->get_bullets_animation(bullet->animation_name);
+	if (raw_anim_node == nullptr) {
+		String message = "Tried to find animation '{0}', but it doesn't exist."
+			" No animation will play";
+		WARN_PRINT(message.format(Array::make(bullet->animation_name)));
+		return;
+	}
+	BulletsAnimation* anim = Object::cast_to<BulletsAnimation>(raw_anim_node);
+	if (anim == nullptr) {
+		String message = "Found a Node called '{0}' under the `BulletsEnvironment.bullet_animations`, "
+			"but it is not a `BulletsAnimation`. No animation will play";
+		WARN_PRINT(message.format(Array::make(bullet->animation_name)));
+		return;
+	}
+	// Technically, the range property should prevent this, but check for 0 anyway
+	if (anim->duration == 0.0) {
+		ERR_PRINT("BulletsAnimation.duration cannot be 0!");
+		return;
+	}
+	float_t lerp_val = Math::clamp(
+		(bullet->lifetime - bullet->animation_start_time) / anim->duration,
+		(float_t)0.0,
+		(float_t)1.0
+	);
+	if(anim->scale_curve.is_valid()) {
+		float_t scale_degree = anim->scale_curve->interpolate(lerp_val);
+		Transform2D new_transform = bullet->visual_transform;
+		new_transform.scale_basis(
+			Vector2(scale_degree, scale_degree) / bullet->transform.get_scale()
+		);
+		bullet->visual_transform = new_transform;
+	}
+	if(anim->alpha_curve.is_valid()) {
+		float_t alpha_degree = anim->alpha_curve->interpolate(lerp_val);
+		Color final_color = Color(
+			base_color.r,
+			base_color.g,
+			base_color.b,
+			base_color.a * alpha_degree
+		);
+		bullet->visual_modulate = final_color;
+	}
+	if(anim->rotation_degree_curve.is_valid()) {
+		float_t rotation_degree = anim->rotation_degree_curve->interpolate(lerp_val);
+		float_t rotation_radians = (M_PI / 180.0) * rotation_degree;
+		Transform2D new_transform = bullet->visual_transform;
+		new_transform.rotated(rotation_radians);
+		bullet->visual_transform = new_transform;
+	}
 }
 
 //-- END Default "standard" implementation.
@@ -163,12 +163,12 @@ void AbstractBulletsPool<Kit, BulletType>::_init(Node* parent_hint, RID shared_a
 	}
 
 	// Put the bullet animations into the object directly
-	// Array children = parent_hint->get_children();
-	// for (int32_t i = 0; i < children.size(); i++) {
-	// 	Node* child = Object::cast_to<Node>(children[i]);
-	// 	String name = child->get_name();
-	// 	this->bullets_animations[name] = child;
-	// }
+	Array children = parent_hint->get_children();
+	for (int32_t i = 0; i < children.size(); i++) {
+		Node* child = Object::cast_to<Node>(children[i]);
+		String name = child->get_name();
+		this->bullets_animations[name] = child;
+	}
 
 	available_bullets = pool_size;
 	active_bullets = 0;
