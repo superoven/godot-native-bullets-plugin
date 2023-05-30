@@ -292,7 +292,7 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 			bullet->set(keys[i], properties[keys[i]]);
 		}
 
-		VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->transform);
+		// VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->transform);
 		if(collisions_enabled)
 			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->transform);
 
@@ -372,12 +372,12 @@ void AbstractBulletsPool<Kit, BulletType>::set_bullet_property(BulletID id, Stri
 		bullets[bullet_index]->set(property, value);
 
 		// TODO: I think that these calls may be unnecessary _process_bullet should be handling it
-		if(property == "transform") {
-			BulletType* bullet = bullets[bullet_index];
-			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->transform);
-			if(collisions_enabled)
-				Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->transform);
-		}
+		// if(property == "transform") {
+		// 	BulletType* bullet = bullets[bullet_index];
+		// 	VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->transform);
+		// 	if(collisions_enabled)
+		// 		Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->transform);
+		// }
 	}
 }
 
@@ -414,11 +414,11 @@ void AbstractBulletsPool<Kit, BulletType>::_apply_properties(BulletType* bullet,
 		Variant value = properties[keys[i]];
 		bullet->set(key, value);
 		// TODO: I think that these calls may be unnecessary _process_bullet should be handling it
-		if(key == "transform") {
-			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, value);
-			if(collisions_enabled)
-				Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, value);
-		}
+		// if(key == "transform") {
+		// 	VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, value);
+		// 	if(collisions_enabled)
+		// 		Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, value);
+		// }
 	}
 }
 
