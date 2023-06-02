@@ -292,11 +292,17 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 			bullet->set(keys[i], properties[keys[i]]);
 		}
 
+		// bullet->animation_name
 		// VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->transform);
 		if(collisions_enabled)
 			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->transform);
 
 		_enable_bullet(bullet);
+		// Set lifetime after enabling to overwrite the 0.0f it just was set to
+		if (properties.has("lifetime")) {
+			bullet->set("lifetime", properties["lifetime"]);
+		}
+
 		return BulletID(bullet->shape_index, bullet->cycle, set_index);
 	}
 	return BulletID(-1, -1, -1);

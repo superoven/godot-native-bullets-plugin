@@ -17,7 +17,6 @@ class DynamicBullet : public Bullet {
 public:
 	Transform2D starting_transform;
 	float starting_speed;
-	// Vector2 starting_
 
 	void set_transform(Transform2D transform) {
 		starting_transform = transform;
@@ -31,7 +30,6 @@ public:
 	void set_velocity(Vector2 velocity) {
 		starting_speed = velocity.length();
 		this->velocity = velocity;
-		// Godot::print("INSIDE C++: {0} Setting bullet velocity to: {1}", this, this->velocity);
 	}
 
 	Vector2 get_velocity() {
@@ -61,7 +59,7 @@ public:
 	BULLET_KIT(DynamicBulletsPool)
 
 	Ref<Texture> texture;
-	float lifetime_curves_span = 1.0f;
+	// float lifetime_curves_span = 1.0f;
 	bool lifetime_curves_loop = true;
 	bool free_after_lifetime = false;
 	Ref<Curve> speed_multiplier_over_lifetime;
@@ -72,8 +70,6 @@ public:
 	static void _register_methods() {
 		register_property<DynamicBulletKit, Ref<Texture>>("texture", &DynamicBulletKit::texture, Ref<Texture>(), 
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Texture");
-		register_property<DynamicBulletKit, float>("lifetime_curves_span", &DynamicBulletKit::lifetime_curves_span, 1.0f,
-			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RANGE, "0.001,256.0");
 		register_property<DynamicBulletKit, bool>("lifetime_curves_loop", &DynamicBulletKit::lifetime_curves_loop, true,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
 		register_property<DynamicBulletKit, bool>("free_after_lifetime", &DynamicBulletKit::free_after_lifetime, false,
@@ -106,29 +102,39 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 		VisualServer::get_singleton()->canvas_item_add_texture_rect(bullet->item_rid,
 			texture_rect,
 			texture_rid);
-		// Godot::print("INSIDE C++: {0} enabled! velocity: {1}", this, bullet->velocity);
-
 	}
 
 	// void _disable_bullet(Bullet* bullet); Use default implementation.
 
 	bool _process_bullet(DynamicBullet* bullet, float delta) {
+		// Normalize the lifetime value
 		float_t adjusted_lifetime = bullet->lifetime / kit->lifetime_curves_span;
 		if(kit->lifetime_curves_loop) {
 			adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
 		}
-
+		
+		// Movement processing
 		if(kit->speed_multiplier_over_lifetime.is_valid()) {
 			float_t speed_multiplier = kit->speed_multiplier_over_lifetime->interpolate(adjusted_lifetime);
-			bullet->velocity = bullet->velocity.normalized() * bullet->starting_speed * speed_multiplier;
+			Vector2 dir_vec = Vector2::RIGHT.rotated(bullet->transform.get_rotation());
+			bullet->velocity = (dir_vec) * bullet->starting_speed * speed_multiplier;
 		}
 		if(kit->rotation_offset_over_lifetime.is_valid()) {
 			float_t abs_rotation_offset = kit->rotation_offset_over_lifetime->interpolate(adjusted_lifetime);
 			float_t abs_rotation_radians = (M_PI / 180.0) * abs_rotation_offset;
 			float_t result = abs_rotation_radians + bullet->starting_transform.get_rotation();
-			float_t offset = result - bullet->velocity.angle();
+			float_t offset = result - bullet->transform.get_rotation();
 			bullet->velocity = bullet->velocity.rotated(offset);
+			bullet->transform.set_rotation(offset);
 		}
+		_process_acceleration(bullet, delta);
+		bullet->transform.set_origin(bullet->transform.get_origin() + bullet->velocity * delta);
+		if(!active_rect.has_point(bullet->transform.get_origin())) {
+			// Return true if the bullet should be deleted.
+			return true;
+		}
+
+		// Animation and Visuals Processing
 		if(kit->alpha_over_lifetime.is_valid()) {
 			float_t alpha = kit->alpha_over_lifetime->interpolate(adjusted_lifetime);
 			Color color = bullet->modulate;
@@ -143,20 +149,9 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 			bullet->modulate = color;
 			VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, color);
 		}
-		_process_acceleration(bullet, delta);
 		_process_animation(bullet, delta);
 
-		bullet->transform.set_origin(bullet->transform.get_origin() + bullet->velocity * delta);
-
-		if(!active_rect.has_point(bullet->transform.get_origin())) {
-			// Return true if the bullet should be deleted.
-			return true;
-		}
-		// Rotate the bullet based on its velocity "rotate" is enabled.
-		if(kit->rotate) {
-			bullet->transform.set_rotation(bullet->velocity.angle());
-		}
-		// Bullet is still alive, increase its lifetime.
+		// Various checks for lifetime and potential cleanup
 		bullet->lifetime += delta;
 		// If bullet should free itself after it's lifetime, do it
 		if(kit->free_after_lifetime && bullet->lifetime > kit->lifetime_curves_span) {
