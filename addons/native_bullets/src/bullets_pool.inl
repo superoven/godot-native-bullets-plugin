@@ -75,7 +75,7 @@ void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet
 		return;
 	}
 	// Technically, the range property should prevent this, but check for 0 anyway
-	if (anim->duration == 0.0) {
+	if (Math::is_equal_approx(anim->duration, 0.0)) {
 		ERR_PRINT("BulletsAnimation.duration cannot be 0!");
 		return;
 	}
