@@ -22,14 +22,15 @@ public:
     Ref<Curve> scale_curve;
     Ref<Curve> rotation_degree_curve;
     Ref<Curve> alpha_curve;
+    Ref<Curve> glow_curve;
+    Ref<Curve> color_mix_curve;
+    Color end_color;
 
     BulletsAnimation() {
         duration = DEFAULT_DURATION;
     }
 
 	void _init() {
-        // scale_curve.resource_local_to_scene = true;
-        // scale_curve->set_flags(scale_curve->get_flags() | Resource::FLAG_LOCAL_TO_SCENE);
     }
 
     void _ready() {}
@@ -47,6 +48,15 @@ public:
         register_property<BulletsAnimation, Ref<Curve>>("alpha_curve", &BulletsAnimation::alpha_curve,
             Ref<Curve>(), GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT,
             GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
+        register_property<BulletsAnimation, Ref<Curve>>("glow_curve", &BulletsAnimation::glow_curve,
+            Ref<Curve>(), GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT,
+            GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
+        register_property<BulletsAnimation, Ref<Curve>>("color_mix_curve", &BulletsAnimation::color_mix_curve,
+            Ref<Curve>(), GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT,
+            GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
+        register_property<BulletsAnimation, Color>("end_color", &BulletsAnimation::end_color,
+			Color(1.0, 1.0, 1.0, 1.0), GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT,
+            GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Color");
     }
 };
 

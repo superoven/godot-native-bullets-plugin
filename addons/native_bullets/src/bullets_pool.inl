@@ -92,15 +92,34 @@ void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet
 		);
 		bullet->visual_transform = new_transform;
 	}
+	if(anim->color_mix_curve.is_valid()) {
+		float_t lerp_degree = anim->color_mix_curve->interpolate(lerp_val);
+		Color final_color = bullet->visual_modulate.linear_interpolate(
+			anim->end_color,
+			lerp_degree
+		);
+		bullet->visual_modulate = final_color;
+	}
 	if(anim->alpha_curve.is_valid()) {
 		float_t alpha_degree = anim->alpha_curve->interpolate(lerp_val);
 		Color final_color = Color(
-			base_color.r,
-			base_color.g,
-			base_color.b,
-			base_color.a * alpha_degree
+			bullet->visual_modulate.r,
+			bullet->visual_modulate.g,
+			bullet->visual_modulate.b,
+			bullet->visual_modulate.a * alpha_degree
 		);
 		bullet->visual_modulate = final_color;
+	}
+	if(anim->glow_curve.is_valid()) {
+		float_t glow_degree = anim->glow_curve->interpolate(lerp_val);
+		Color final_color = Color(
+			bullet->visual_modulate.r * glow_degree,
+			bullet->visual_modulate.g * glow_degree,
+			bullet->visual_modulate.b * glow_degree,
+			bullet->visual_modulate.a
+		);
+		bullet->visual_modulate = final_color;
+		bullet->glow_degree = glow_degree;
 	}
 	if(anim->rotation_degree_curve.is_valid()) {
 		float_t rotation_degree = anim->rotation_degree_curve->interpolate(lerp_val);
