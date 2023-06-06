@@ -311,8 +311,6 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 			bullet->set(keys[i], properties[keys[i]]);
 		}
 
-		// bullet->animation_name
-		// VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->transform);
 		if(collisions_enabled)
 			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->transform);
 
@@ -321,6 +319,12 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 		if (properties.has("lifetime")) {
 			bullet->set("lifetime", properties["lifetime"]);
 		}
+
+		// if (bullet->animation_name != "") {
+		_process_animation(bullet, 0.0f);
+		// }
+		VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->visual_transform);
+		VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
 
 		return BulletID(bullet->shape_index, bullet->cycle, set_index);
 	}
