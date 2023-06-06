@@ -125,7 +125,7 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 			float_t result = abs_rotation_radians + bullet->starting_transform.get_rotation();
 			float_t offset = result - bullet->transform.get_rotation();
 			bullet->velocity = bullet->velocity.rotated(offset);
-			bullet->transform.set_rotation(offset);
+			bullet->transform.set_rotation(result);
 		}
 		_process_acceleration(bullet, delta);
 		bullet->transform.set_origin(bullet->transform.get_origin() + bullet->velocity * delta);

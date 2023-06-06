@@ -55,7 +55,8 @@ class BasicBulletsPool : public AbstractBulletsPool<BasicBulletKit, Bullet> {
 			return true;
 		}
 		// Rotate the bullet based on its velocity "rotate" is enabled.
-		if(kit->rotate) {
+		// if(kit->rotate) {
+		if(bullet->velocity.length() > 0.0f) {
 			bullet->transform.set_rotation(bullet->velocity.angle());
 		}
 		// Bullet is still alive, increase its lifetime.
