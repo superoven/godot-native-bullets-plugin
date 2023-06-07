@@ -84,6 +84,14 @@ void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet
 		(float_t)0.0,
 		(float_t)1.0
 	);
+	if(anim->rotation_degree_curve.is_valid()) {
+		float_t abs_rotation_degree = anim->rotation_degree_curve->interpolate(lerp_val);
+		float_t abs_rotation_radians = (M_PI / 180.0) * abs_rotation_degree;
+		float_t result = abs_rotation_radians + bullet->transform.get_rotation();
+		Transform2D new_transform = bullet->visual_transform;
+		new_transform.set_rotation(result);
+		bullet->visual_transform = new_transform;
+	}
 	if(anim->scale_curve.is_valid()) {
 		float_t scale_degree = anim->scale_curve->interpolate(lerp_val);
 		Transform2D new_transform = bullet->visual_transform;
@@ -120,13 +128,6 @@ void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet
 		);
 		bullet->visual_modulate = final_color;
 		bullet->glow_degree = glow_degree;
-	}
-	if(anim->rotation_degree_curve.is_valid()) {
-		float_t rotation_degree = anim->rotation_degree_curve->interpolate(lerp_val);
-		float_t rotation_radians = (M_PI / 180.0) * rotation_degree;
-		Transform2D new_transform = bullet->visual_transform;
-		new_transform.rotated(rotation_radians);
-		bullet->visual_transform = new_transform;
 	}
 }
 
