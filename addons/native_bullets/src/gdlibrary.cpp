@@ -5,6 +5,7 @@
 #include "kits/dynamic_bullet_kit.h"
 #include "kits/following_dynamic_bullet_kit.h"
 #include "music_meter.h"
+// #include "music_utils.h"
 
 
 extern "C" void GDN_EXPORT godot_gdnative_init(godot_gdnative_init_options *o) {
@@ -36,6 +37,7 @@ extern "C" void GDN_EXPORT godot_nativescript_init(void *handle) {
 
 	godot::register_class<BulletsAnimation>();
 	godot::register_class<MusicMeter>();
+	// godot::register_class<MusicUtils>();
 	
 	// Custom Bullet Kits.
 	//godot::register_class<CustomBulletKit>();

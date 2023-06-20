@@ -17,22 +17,11 @@ class MusicMeter : public Node {
     int time_sig_bottom;
 
 public:
-    MusicMeter() {
-        Godot::print("I'm in the new() function!");
-        // bpm = 100.0;
-        // time_sig_top = 4;
-        // time_sig_bottom = 4;
-    }
+    MusicMeter() {}
 
     ~MusicMeter() {}
 
     void _init() {}
-
-    // MusicMeter(float _bpm, int _time_sig_top, int _time_sig_bottom) {
-    //     bpm = _bpm;
-    //     time_sig_top = _time_sig_top;
-    //     time_sig_bottom = _time_sig_bottom;
-    // }
 
     void init(float _bpm, int _time_sig_top, int _time_sig_bottom) {
         bpm = _bpm;
@@ -43,8 +32,6 @@ public:
     float_t get_seconds_per_measure() {
        return (60.0 * float(time_sig_bottom)) / float(bpm);
     }
-
-   	// virtual float_t get_seconds_per_measure();
 
     static void _register_methods() {
         register_property<MusicMeter, float>("bpm", &MusicMeter::bpm, 100.0);

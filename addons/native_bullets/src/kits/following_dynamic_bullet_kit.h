@@ -60,7 +60,7 @@ public:
 	BULLET_KIT(FollowingDynamicBulletsPool)
 
 	Ref<Texture> texture;
-	float lifetime_curves_span = 1.0f;
+	// float lifetime_curves_span = 1.0f;
 	float distance_curves_span = 128.0f;
 	bool lifetime_curves_loop = true;
 	bool free_after_lifetime = false;
@@ -72,8 +72,8 @@ public:
 	static void _register_methods() {
 		register_property<FollowingDynamicBulletKit, Ref<Texture>>("texture", &FollowingDynamicBulletKit::texture, Ref<Texture>(), 
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Texture");
-		register_property<FollowingDynamicBulletKit, float>("lifetime_curves_span", &FollowingDynamicBulletKit::lifetime_curves_span, 1.0f,
-			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RANGE, "0.001,256.0");
+		// register_property<FollowingDynamicBulletKit, float>("lifetime_curves_span", &FollowingDynamicBulletKit::lifetime_curves_span, 1.0f,
+		// 	GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RANGE, "0.001,256.0");
 		register_property<FollowingDynamicBulletKit, float>("distance_curves_span", &FollowingDynamicBulletKit::distance_curves_span, 128.0f,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RANGE, "0.001,65536.0");
 		register_property<FollowingDynamicBulletKit, bool>("lifetime_curves_loop", &FollowingDynamicBulletKit::lifetime_curves_loop, true,
@@ -118,7 +118,7 @@ class FollowingDynamicBulletsPool : public AbstractBulletsPool<FollowingDynamicB
 	// void _disable_bullet(FollowingDynamicBullet* bullet); Use default implementation.
 
 	bool _process_bullet(FollowingDynamicBullet* bullet, float delta) {
-		float adjusted_lifetime = bullet->lifetime / kit->lifetime_curves_span;
+		float adjusted_lifetime = bullet->lifetime / bullet->lifetime_curves_span;
 		if(kit->lifetime_curves_loop) {
 			adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
 		}
@@ -191,7 +191,7 @@ class FollowingDynamicBulletsPool : public AbstractBulletsPool<FollowingDynamicB
 		// Bullet is still alive, increase its lifetime.
 		bullet->lifetime += delta;
 		// If bullet should free itself after it's lifetime, do it
-		if(kit->free_after_lifetime && bullet->lifetime > kit->lifetime_curves_span) {
+		if(kit->free_after_lifetime && bullet->lifetime > bullet->lifetime_curves_span) {
 			return true;
 		}
 		// Return false if the bullet should not be deleted yet.

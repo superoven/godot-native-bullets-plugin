@@ -108,7 +108,7 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 
 	bool _process_bullet(DynamicBullet* bullet, float delta) {
 		// Normalize the lifetime value
-		float_t adjusted_lifetime = bullet->lifetime / kit->lifetime_curves_span;
+		float_t adjusted_lifetime = bullet->lifetime / bullet->lifetime_curves_span;
 		if(kit->lifetime_curves_loop) {
 			adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
 		}
@@ -154,7 +154,7 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 		// Various checks for lifetime and potential cleanup
 		bullet->lifetime += delta;
 		// If bullet should free itself after it's lifetime, do it
-		if(kit->free_after_lifetime && bullet->lifetime > kit->lifetime_curves_span) {
+		if(kit->free_after_lifetime && bullet->lifetime > bullet->lifetime_curves_span) {
 			return true;
 		}
 		// Return false if the bullet should not be deleted yet.
