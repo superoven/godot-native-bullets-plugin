@@ -229,9 +229,9 @@ void Bullets::unmount(Node* bullets_environment) {
 		total_bullets = 0;
 
 		this->bullets_environment = nullptr;
-	}
-	if(bullets_environment != nullptr) {
-		bullets_environment->set("current", false);
+	} else {
+		String message = "Unmount: Something went wrong? Bullet Environment was: {0}";
+		ERR_PRINT(message.format(Array::make(bullets_environment)));
 	}
 }
 
