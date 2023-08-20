@@ -8,6 +8,7 @@
 #include <Color.hpp>
 #include <Array.hpp>
 #include <RegEx.hpp>
+#include <Mutex.hpp>
 
 #include <vector>
 #include <memory>
@@ -50,6 +51,7 @@ private:
 
 	void _clear_rids();
 	int32_t _get_pool_index(int32_t set_index, int32_t bullet_index);
+	Mutex _lock;
 
 public:
 	static void _register_methods();
