@@ -15,6 +15,7 @@ using namespace godot;
 
 void Bullets::_register_methods() {
 	register_method("_physics_process", &Bullets::_physics_process);
+	register_method("_ready", &Bullets::_ready);
 
 	register_method("mount", &Bullets::mount);
 	register_method("unmount", &Bullets::unmount);
@@ -64,6 +65,11 @@ void Bullets::_init() {
 	invalid_id.set(0, -1);
 	invalid_id.set(1, -1);
 	invalid_id.set(2, -1);
+}
+
+void Bullets::_ready() {
+	this->set_physics_process(false);
+	// Godot::print("Setting physics process off lmao");
 	_lock = Mutex();
 }
 
@@ -71,6 +77,7 @@ void Bullets::_physics_process(float delta) {
 	if(Engine::get_singleton()->is_editor_hint()) {
 		return;
 	}
+	// Godot::print("processing Bullets...");
 	// _lock.lock();
 	int32_t bullets_variation = 0;
 
@@ -245,10 +252,20 @@ void Bullets::unmount(Node* bullets_environment) {
 }
 
 Node* Bullets::get_bullets_environment() {
-	// _lock.lock();
-	Node* be = bullets_environment;
-	// _lock.unlock();
-	return be;
+	// CRASH_BAD_INDEX(1, 3);
+	CRASH_NOW();
+	ERR_PRINT("about to try out the lock");
+	Godot::print_error("about to try out the lock", "function", "file", 1);
+	// OS::get_singleton()->flush_stdout();
+	if (_lock.try_lock() == Error::OK) {
+		Godot::print_error("getting the lock lmao", "function", "file", 1);
+		Node* be = bullets_environment;
+		_lock.unlock();
+		return be;
+	} else {
+		Godot::print_error("couldn't get the lock?", "function", "file", 1);
+	}
+	return nullptr;
 }
 
 Variant Bullets::spawn_bullet(Ref<BulletKit> kit, Dictionary properties) {
