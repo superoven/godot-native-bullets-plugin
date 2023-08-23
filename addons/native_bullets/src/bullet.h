@@ -27,6 +27,7 @@ public:
 	RID item_rid;
 	int32_t cycle = 0;
 	int32_t shape_index = -1;
+	bool active = false;
 	Transform2D transform;
 	Transform2D visual_transform;
 	Vector2 velocity;

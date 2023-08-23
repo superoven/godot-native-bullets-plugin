@@ -21,6 +21,7 @@ void AbstractBulletsPool<Kit, BulletType>::_init_bullet(BulletType* bullet) {}
 template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::_enable_bullet(BulletType* bullet) {
 	bullet->lifetime = 0.0f;
+	bullet->active = true;
 
 	Rect2 texture_rect = Rect2(-kit->texture->get_size() / 2.0f, kit->texture->get_size());
 	RID texture_rid = kit->texture->get_rid();
@@ -303,6 +304,8 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 
 		bullet->animation_name = "";
 		bullet->animation_start_time = 0.0;
+		bullet->active = true;
+		// Godot::print("SEtting bullet to active: {0}", bullet->active);
 
 		if(collisions_enabled)
 			Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, false);
@@ -460,20 +463,27 @@ void AbstractBulletsPool<Kit, BulletType>::apply_all(Dictionary properties) {
 	}
 }
 
+// TODO: If this works, we may want a function that disables
 template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::enable_collisions(bool enable) {
 	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
 		BulletType* bullet = bullets[i];
+		bullet->active = false;
 		Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, !enable);
 	}
 }
+
+
+// VisualServer::get_singleton()->canvas_item_clear(bullet->item_rid);
 
 template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::apply_bullets_animation_to_all(String animation_name) {
 	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
 		BulletType* bullet = bullets[i];
-		bullet->animation_name = animation_name;
-		bullet->animation_start_time = bullet->lifetime;
+		if (bullet->active) {
+			bullet->animation_name = animation_name;
+			bullet->animation_start_time = bullet->lifetime;
+		}
 	}
 }
 
