@@ -252,20 +252,7 @@ void Bullets::unmount(Node* bullets_environment) {
 }
 
 Node* Bullets::get_bullets_environment() {
-	// CRASH_BAD_INDEX(1, 3);
-	CRASH_NOW();
-	ERR_PRINT("about to try out the lock");
-	Godot::print_error("about to try out the lock", "function", "file", 1);
-	// OS::get_singleton()->flush_stdout();
-	if (_lock.try_lock() == Error::OK) {
-		Godot::print_error("getting the lock lmao", "function", "file", 1);
-		Node* be = bullets_environment;
-		_lock.unlock();
-		return be;
-	} else {
-		Godot::print_error("couldn't get the lock?", "function", "file", 1);
-	}
-	return nullptr;
+	return bullets_environment;
 }
 
 Variant Bullets::spawn_bullet(Ref<BulletKit> kit, Dictionary properties) {

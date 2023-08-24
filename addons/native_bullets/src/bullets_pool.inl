@@ -305,6 +305,7 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 		bullet->animation_name = "";
 		bullet->animation_start_time = 0.0;
 		bullet->active = true;
+		bullet->modulate = kit->base_modulate_color;
 		// Godot::print("SEtting bullet to active: {0}", bullet->active);
 
 		if(collisions_enabled)
@@ -432,6 +433,12 @@ void AbstractBulletsPool<Kit, BulletType>::apply_bullets_animation(BulletID id, 
 		BulletType* bullet = bullets[bullet_index];
 		bullet->animation_name = animation_name;
 		bullet->animation_start_time = bullet->lifetime;
+		bullet->modulate = Color(
+			bullet->visual_modulate.r,
+			bullet->visual_modulate.g,
+			bullet->visual_modulate.b,
+			1.0
+		);
 		// Godot::print("Set bullet to '{0}'", animation_name);
 	} else {
 		Godot::print("INSIDE C++: Bullet wasn't valid");
