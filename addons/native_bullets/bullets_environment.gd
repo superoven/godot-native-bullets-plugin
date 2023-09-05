@@ -13,7 +13,6 @@ export(Array, int) var z_indices: Array
 
 var properties_regex : RegEx
 
-# var _lock: Mutex = Mutex.new()
 
 func _init():
 	properties_regex = RegEx.new()
@@ -30,7 +29,6 @@ func _ready():
 	if Engine.editor_hint:
 		return
 	if current and is_instance_valid(Bullets):
-		# self._mount()
 		Bullets.mount(self)
 
 
@@ -38,7 +36,6 @@ func _exit_tree():
 	if Engine.editor_hint:
 		return
 	if is_instance_valid(Bullets):
-		# self._unmount()
 		Bullets.unmount(self)
 
 
@@ -46,21 +43,19 @@ func reload():
 	_set_current(false)
 	_set_current(true)
 
-# func _mount():
-# 	self._lock.lock()
-# 	Bullets.mount(self)
-# 	self._lock.unlock()
-
-# func _unmount():
-# 	self._lock.lock()
-# 	Bullets.unmount(self)
-# 	self._lock.unlock()
 
 func find_bullet_kit(bullet_kit):
 	for i in range(self.bullet_kits.size()):
 		if self.bullet_kits[i] == bullet_kit:
 			return i
 	return -1
+
+
+func clear():
+	bullet_kits.clear()
+	pools_sizes.clear()
+	parents_hints.clear()
+	z_indices.clear()
 
 
 func _set_current(value):
@@ -72,10 +67,8 @@ func _set_current(value):
 		current = value
 		if Bullets != null and is_instance_valid(Bullets):
 			if current:
-				# self._mount()
 				Bullets.mount(self)
 			else:
-				# self._unmount()
 				Bullets.unmount(self)
 
 

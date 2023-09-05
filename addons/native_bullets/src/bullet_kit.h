@@ -57,9 +57,6 @@ public:
 	// Can be used to offset the bullets animation by a unique amount to avoid having them animate in sync.
 	int32_t unique_modulate_component = 0;
 
-	// // Make the lifetime span always available
-	// float lifetime_curves_span = 1.0f;
-
 	// Additional data the user can set via the editor.
 	Variant data;
 
