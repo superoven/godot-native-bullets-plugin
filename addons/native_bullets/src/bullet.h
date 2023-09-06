@@ -57,6 +57,9 @@ public:
 	int32_t get_shape_index() { return shape_index; }
 	void set_shape_index(int32_t value) { ERR_PRINT("Can't edit the shape index of bullets!"); }
 
+	Transform2D get_transform() { return transform; }
+	Transform2D get_visual_transform() { return visual_transform; }
+
 	static void _register_methods() {
 		register_property<Bullet, RID>("item_rid", &Bullet::set_item_rid, &Bullet::get_item_rid, RID());
 		register_property<Bullet, int32_t>("cycle", &Bullet::set_cycle, &Bullet::get_cycle, 0);

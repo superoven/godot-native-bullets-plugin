@@ -50,7 +50,8 @@ void AbstractBulletsPool<Kit, BulletType>::_process_acceleration(BulletType* bul
 
 template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet, float delta) {
-	bullet->visual_transform = bullet->transform;
+	Transform2D base_transform = bullet->get_transform();
+	bullet->visual_transform = base_transform;
 	Color base_color = Color(
 		bullet->modulate.r * bullet->glow_degree,
 		bullet->modulate.g * bullet->glow_degree,
@@ -88,7 +89,7 @@ void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet
 	if(anim->rotation_degree_curve.is_valid()) {
 		float_t abs_rotation_degree = anim->rotation_degree_curve->interpolate(lerp_val);
 		float_t abs_rotation_radians = (M_PI / 180.0) * abs_rotation_degree;
-		float_t result = abs_rotation_radians + bullet->transform.get_rotation();
+		float_t result = abs_rotation_radians + base_transform.get_rotation();
 		Transform2D new_transform = bullet->visual_transform;
 		new_transform.set_rotation(result);
 		bullet->visual_transform = new_transform;
@@ -97,7 +98,7 @@ void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet
 		float_t scale_degree = anim->scale_curve->interpolate(lerp_val);
 		Transform2D new_transform = bullet->visual_transform;
 		new_transform.scale_basis(
-			Vector2(scale_degree, scale_degree) / bullet->transform.get_scale()
+			Vector2(scale_degree, scale_degree) / base_transform.get_scale()
 		);
 		bullet->visual_transform = new_transform;
 	}
@@ -273,9 +274,9 @@ int32_t AbstractBulletsPool<Kit, BulletType>::_process(float delta) {
 				i += 1;
 				continue;
 			}
-			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->visual_transform);
+			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->get_visual_transform());
 			VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
-			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->transform);
+			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->get_transform());
 		}
 	} else {
 		for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
@@ -287,7 +288,7 @@ int32_t AbstractBulletsPool<Kit, BulletType>::_process(float delta) {
 				i += 1;
 				continue;
 			}
-			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->visual_transform);
+			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->get_visual_transform());
 			VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
 		}
 	}
@@ -317,7 +318,7 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 		}
 
 		if(collisions_enabled)
-			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->transform);
+			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->get_transform());
 
 		_enable_bullet(bullet);
 		// Set lifetime after enabling to overwrite the 0.0f it just was set to
@@ -404,14 +405,6 @@ void AbstractBulletsPool<Kit, BulletType>::set_bullet_property(BulletID id, Stri
 	if(is_bullet_valid(id)) {
 		int32_t bullet_index = shapes_to_indices[id.index - starting_shape_index];
 		bullets[bullet_index]->set(property, value);
-
-		// TODO: I think that these calls may be unnecessary _process_bullet should be handling it
-		// if(property == "transform") {
-		// 	BulletType* bullet = bullets[bullet_index];
-		// 	VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->transform);
-		// 	if(collisions_enabled)
-		// 		Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->transform);
-		// }
 	}
 }
 

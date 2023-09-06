@@ -116,20 +116,20 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 		// Movement processing
 		if(kit->speed_multiplier_over_lifetime.is_valid()) {
 			float_t speed_multiplier = kit->speed_multiplier_over_lifetime->interpolate(adjusted_lifetime);
-			Vector2 dir_vec = Vector2::RIGHT.rotated(bullet->transform.get_rotation());
+			Vector2 dir_vec = Vector2::RIGHT.rotated(bullet->get_transform().get_rotation());
 			bullet->velocity = (dir_vec) * bullet->starting_speed * speed_multiplier;
 		}
 		if(kit->rotation_offset_over_lifetime.is_valid()) {
 			float_t abs_rotation_offset = kit->rotation_offset_over_lifetime->interpolate(adjusted_lifetime);
 			float_t abs_rotation_radians = (M_PI / 180.0) * abs_rotation_offset;
 			float_t result = abs_rotation_radians + bullet->starting_transform.get_rotation();
-			float_t offset = result - bullet->transform.get_rotation();
+			float_t offset = result - bullet->get_transform().get_rotation();
 			bullet->velocity = bullet->velocity.rotated(offset);
 			bullet->transform.set_rotation(result);
 		}
 		_process_acceleration(bullet, delta);
-		bullet->transform.set_origin(bullet->transform.get_origin() + bullet->velocity * delta);
-		if(!active_rect.has_point(bullet->transform.get_origin())) {
+		bullet->transform.set_origin(bullet->get_transform().get_origin() + bullet->velocity * delta);
+		if(!active_rect.has_point(bullet->get_transform().get_origin())) {
 			// Return true if the bullet should be deleted.
 			return true;
 		}

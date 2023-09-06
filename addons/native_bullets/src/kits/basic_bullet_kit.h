@@ -48,9 +48,9 @@ class BasicBulletsPool : public AbstractBulletsPool<BasicBulletKit, Bullet> {
 	bool _process_bullet(Bullet* bullet, float delta) {
 		_process_acceleration(bullet, delta);
 		_process_animation(bullet, delta);
-		bullet->transform.set_origin(bullet->transform.get_origin() + bullet->velocity * delta);
+		bullet->transform.set_origin(bullet->get_transform().get_origin() + bullet->velocity * delta);
 
-		if(!active_rect.has_point(bullet->transform.get_origin())) {
+		if(!active_rect.has_point(bullet->get_transform().get_origin())) {
 			// Return true if the bullet should be deleted.
 			return true;
 		}

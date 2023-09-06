@@ -126,7 +126,7 @@ class FollowingDynamicBulletsPool : public AbstractBulletsPool<FollowingDynamicB
 		float speed_multiplier = 1.0f;
 		
 		if(kit->turning_speed.is_valid() && bullet->target_node != nullptr) {
-			Vector2 to_target = bullet->target_node->get_global_position() - bullet->transform.get_origin();
+			Vector2 to_target = bullet->target_node->get_global_position() - bullet->get_transform().get_origin();
 			// If based on lifetime.
 			if(kit->turning_speed_control_mode == 0) {
 				bullet_turning_speed = kit->turning_speed->interpolate(adjusted_lifetime);
@@ -149,7 +149,7 @@ class FollowingDynamicBulletsPool : public AbstractBulletsPool<FollowingDynamicB
 			}
 			// If based on target node: 1 or 2.
 			else if(kit->speed_control_mode < 3 && bullet->target_node != nullptr) {
-				Vector2 to_target = bullet->target_node->get_global_position() - bullet->transform.get_origin();
+				Vector2 to_target = bullet->target_node->get_global_position() - bullet->get_transform().get_origin();
 				// If based on distance to target.
 				if(kit->speed_control_mode == 1) {
 					float distance_to_target = to_target.length();
@@ -177,9 +177,9 @@ class FollowingDynamicBulletsPool : public AbstractBulletsPool<FollowingDynamicB
 
 		_process_acceleration(bullet, delta);
 		_process_animation(bullet, delta);
-		bullet->transform.set_origin(bullet->transform.get_origin() + bullet->velocity * delta);
+		bullet->transform.set_origin(bullet->get_transform().get_origin() + bullet->velocity * delta);
 
-		if(!active_rect.has_point(bullet->transform.get_origin())) {
+		if(!active_rect.has_point(bullet->get_transform().get_origin())) {
 			// Return true if the bullet should be deleted.
 			return true;
 		}

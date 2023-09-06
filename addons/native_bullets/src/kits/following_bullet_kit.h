@@ -80,7 +80,7 @@ class FollowingBulletsPool : public AbstractBulletsPool<FollowingBulletKit, Foll
 	bool _process_bullet(FollowingBullet* bullet, float delta) {
 		if(bullet->target_node != nullptr) {
 			// Find the rotation to the target node.
-			Vector2 to_target = bullet->target_node->get_global_position() - bullet->transform.get_origin();
+			Vector2 to_target = bullet->target_node->get_global_position() - bullet->get_transform().get_origin();
 			bullet->acceleration_basis_vector = to_target;
 			float rotation_to_target = bullet->velocity.angle_to(to_target);
 			float rotation_value = Math::min(kit->bullets_turning_speed * delta, std::abs(rotation_to_target));
@@ -91,9 +91,9 @@ class FollowingBulletsPool : public AbstractBulletsPool<FollowingBulletKit, Foll
 		_process_acceleration(bullet, delta);
 		_process_animation(bullet, delta);
 		// Apply velocity.
-		bullet->transform.set_origin(bullet->transform.get_origin() + bullet->velocity * delta);
+		bullet->transform.set_origin(bullet->get_transform().get_origin() + bullet->velocity * delta);
 
-		if(!active_rect.has_point(bullet->transform.get_origin())) {
+		if(!active_rect.has_point(bullet->get_transform().get_origin())) {
 			// Return true if the bullet should be deleted.
 			return true;
 		}

@@ -5,6 +5,7 @@
 #include "kits/dynamic_bullet_kit.h"
 #include "kits/following_dynamic_bullet_kit.h"
 #include "kits/composite_bullet_kit.h"
+#include "kits/polar_bullet_kit.h"
 #include "music_meter.h"
 // #include "music_utils.h"
 
@@ -38,6 +39,9 @@ extern "C" void GDN_EXPORT godot_nativescript_init(void *handle) {
 
 	// godot::register_class<CompositeBullet>();
 	godot::register_class<CompositeBulletKit>();
+
+	godot::register_class<PolarBullet>();
+	godot::register_class<PolarBulletKit>();
 
 	godot::register_class<BulletsAnimation>();
 	godot::register_class<MusicMeter>();
