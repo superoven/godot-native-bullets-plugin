@@ -30,10 +30,16 @@ public:
 	}
 
 	Transform2D _get_transform(float_t _r, float_t _theta) {
-		Vector2 origin = transform.get_origin();
-		float_t base_rotation = transform.get_rotation();
-		float_t final_rotation = base_rotation + Math::deg2rad(_theta);
-		Transform2D ret = transform.translated(Vector2::RIGHT.rotated(final_rotation) * _r);
+		// Vector2 origin = transform.get_origin();
+		// float_t base_rotation = transform.get_rotation();
+		// Godot::print("base_rotation: {0}. theta: {1}", base_rotation, _theta);
+		// float_t final_rotation = base_rotation + Math::deg2rad(_theta);
+		// Dictionary anim = Dictionary(this->data)->get("theta");
+		float_t theta_offset = Dictionary(this->data)["theta_offset"];
+
+		// Godot::print("theta_offset: {0}", theta_offset);
+		float_t final_rotation = Math::deg2rad(_theta + theta_offset);
+		Transform2D ret = transform.translated(Vector2::UP.rotated(final_rotation) * _r);
 		return ret;
 	}
 
@@ -66,9 +72,11 @@ public:
 
 	Ref<Texture> texture;
 
-	bool lifetime_curves_loop = true;
+	// bool lifetime_curves_loop = true;
 	// bool free_after_lifetime = false;
+	bool r_loop = true;
 	Ref<Curve> r_over_lifetime;
+	bool theta_loop = true;
 	Ref<Curve> theta_over_lifetime;
 
 	static void _register_methods() {
@@ -78,9 +86,12 @@ public:
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
 		register_property<PolarBulletKit, Ref<Curve>>("theta_over_lifetime", &PolarBulletKit::theta_over_lifetime, Ref<Curve>(), 
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
+		register_property<PolarBulletKit, bool>("r_loop", &PolarBulletKit::r_loop, false,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBulletKit, bool>("theta_loop", &PolarBulletKit::theta_loop, false,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
 
-
-		BULLET_KIT_REGISTRATION(PolarBulletKit, Bullet)
+		BULLET_KIT_REGISTRATION(PolarBulletKit, PolarBullet)
 	}
 };
 
@@ -89,7 +100,7 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 
 	// void _init_bullet(Bullet* bullet); Use default implementation.
 
-	void _enable_bullet(Bullet* bullet) {
+	void _enable_bullet(PolarBullet* bullet) {
 		// Reset the bullet lifetime.
 		bullet->lifetime = 0.0f;
 		Rect2 texture_rect = Rect2(-kit->texture->get_size() / 2.0f, kit->texture->get_size());
@@ -99,22 +110,41 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 		VisualServer::get_singleton()->canvas_item_add_texture_rect(bullet->item_rid,
 			texture_rect,
 			texture_rid);
+		// Vector2 normal = Vector2::RIGHT; //.rotated(bullet->transform->get_angle());
+		// VisualServer::get_singleton()->canvas_item_add_line(bullet->item_rid,
+		// 	// bullet->transform.get_origin(),
+		// 	Vector2(0.0, 0.0),
+		// 	// bullet->transform.get_origin() + (normal * 20.0),
+		// 	(normal * 30.0),
+		// 	Color(0.0, 0.0, 0.0, 0.0),
+		// 	3.0);
 	}
 
 	// void _disable_bullet(Bullet* bullet); Use default implementation.
 
-	bool _process_bullet(PolarBullet* bullet, float delta) {
-		float_t adjusted_lifetime = bullet->lifetime / bullet->lifetime_curves_span;
-		if(kit->lifetime_curves_loop) {
-			adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
-		}
+	// bool _adjust_r(PolarBullet* bullet, bool loop, float delta) {
+	// 	float_t adjusted_lifetime = bullet->lifetime / bullet->lifetime_curves_span;
+	// 	if(loop) {
+	// 		adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
+	// 	}
+	// }
 
+	bool _process_bullet(PolarBullet* bullet, float delta) {
 		if(kit->r_over_lifetime.is_valid()) {
+			float_t adjusted_lifetime = bullet->lifetime / bullet->lifetime_curves_span;
+			if(kit->r_loop) {
+				adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
+			}
 			bullet->prev_r = bullet->r;
 			bullet->r = kit->r_over_lifetime->interpolate(adjusted_lifetime);
 		}
 
+		// TODO: This could be abstracted if we really wanted
 		if(kit->theta_over_lifetime.is_valid()) {
+			float_t adjusted_lifetime = bullet->lifetime / bullet->lifetime_curves_span;
+			if(kit->theta_loop) {
+				adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
+			}
 			bullet->prev_theta = bullet->theta;
 			bullet->theta = kit->theta_over_lifetime->interpolate(adjusted_lifetime);
 		}
