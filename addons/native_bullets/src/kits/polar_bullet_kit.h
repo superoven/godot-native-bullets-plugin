@@ -24,7 +24,12 @@ public:
 	Transform2D get_transform() {
 		Transform2D prev_transform = this->_get_transform(this->prev_r, this->prev_theta);
 		Transform2D final_transform = this->_get_transform(this->r, this->theta);
-		Vector2 dir = final_transform.get_origin() - prev_transform.get_origin() + this->delta_velocity;
+		Vector2 dir = final_transform.get_origin() - prev_transform.get_origin();// + this->delta_velocity;
+		// dir = dir.rotated(final_transform.get_rotation());
+		// float_t theta_offset = Dictionary(this->data)["theta_offset"];
+		// Godot::print("dir angle: {0} theta_offset: {1} final_transform angle: {2}", dir.angle(), theta_offset, final_transform.get_rotation());
+		// float_t basis_rotation = transform.get_rotation();
+		// final_transform.set_rotation(dir.angle() - basis_rotation);
 		final_transform.set_rotation(dir.angle());
 		return final_transform;
 	}
@@ -39,7 +44,7 @@ public:
 
 		// Godot::print("theta_offset: {0}", theta_offset);
 		float_t final_rotation = Math::deg2rad(_theta + theta_offset);
-		Transform2D ret = transform.translated(Vector2::UP.rotated(final_rotation) * _r);
+		Transform2D ret = transform.translated(Vector2::RIGHT.rotated(final_rotation) * _r);
 		return ret;
 	}
 
@@ -158,11 +163,6 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 			// Return true if the bullet should be deleted.
 			return true;
 		}
-		// Rotate the bullet based on its velocity "rotate" is enabled.
-		// TODO: Handle the rotation properly
-		// if(bullet->velocity.length() > 0.0f) {
-		// 	bullet->transform.set_rotation(bullet->velocity.angle());
-		// }
 		// Bullet is still alive, increase its lifetime.
 		bullet->lifetime += delta;
 		// Return false if the bullet should not be deleted yet.
