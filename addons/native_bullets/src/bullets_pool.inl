@@ -326,9 +326,7 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 			bullet->set("lifetime", properties["lifetime"]);
 		}
 
-		// if (bullet->animation_name != "") {
-		_process_animation(bullet, 0.0f);
-		// }
+		_process_animation(bullet, 0.0f);  // Process the first frame of animation
 		VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->visual_transform);
 		VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
 
@@ -463,6 +461,16 @@ void AbstractBulletsPool<Kit, BulletType>::apply_all(Dictionary properties) {
 	}
 }
 
+template <class Kit, class BulletType>
+void AbstractBulletsPool<Kit, BulletType>::release_all() {
+	int total_available_bullets = available_bullets;
+	for(int32_t i = pool_size - 1; i >= total_available_bullets; i--) {
+		BulletType* bullet = bullets[i];
+		BulletID bid = BulletID(bullet->shape_index, bullet->cycle, set_index);
+		this->release_bullet(bid);
+	}
+}
+
 // TODO: If this works, we may want a function that disables
 template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::enable_collisions(bool enable) {
@@ -472,9 +480,6 @@ void AbstractBulletsPool<Kit, BulletType>::enable_collisions(bool enable) {
 		Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, !enable);
 	}
 }
-
-
-// VisualServer::get_singleton()->canvas_item_clear(bullet->item_rid);
 
 template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::apply_bullets_animation_to_all(String animation_name) {

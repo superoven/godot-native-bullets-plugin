@@ -96,6 +96,7 @@ public:
 	void apply_bullets_animation_to_kit(Ref<BulletKit> kit, String animation_name);
 	
 	void enable_collisions_to_kit(Ref<BulletKit> kit, bool enabled);
+	void release_all();
 };
 
 #include "bullet_kit.h"
