@@ -326,7 +326,7 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 			bullet->set("lifetime", properties["lifetime"]);
 		}
 
-		_process_animation(bullet, 0.0f);  // Process the first frame of animation
+		// _process_animation(bullet, 0.0f);  // Process the first frame of animation
 		VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->visual_transform);
 		VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
 
@@ -462,13 +462,20 @@ void AbstractBulletsPool<Kit, BulletType>::apply_all(Dictionary properties) {
 }
 
 template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::release_all() {
-	int total_available_bullets = available_bullets;
-	for(int32_t i = pool_size - 1; i >= total_available_bullets; i--) {
+int32_t AbstractBulletsPool<Kit, BulletType>::release_all() {
+	int32_t amount_variation = 0;
+	// int total_available_bullets = available_bullets;
+	// for(int32_t i = pool_size - 1; i >= total_available_bullets; i--) {
+	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
+	// for(int32_t i = 0; i <= total_available_bullets; i++) {		
 		BulletType* bullet = bullets[i];
+		Godot::print("release {0} available_bullets: {1}", i, available_bullets);
 		BulletID bid = BulletID(bullet->shape_index, bullet->cycle, set_index);
-		this->release_bullet(bid);
+		if (this->release_bullet(bid)) {
+			amount_variation -= 1;
+		}
 	}
+	return amount_variation;
 }
 
 // TODO: If this works, we may want a function that disables

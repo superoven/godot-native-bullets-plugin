@@ -77,7 +77,7 @@ public:
 	virtual void enable_collisions(bool enable) = 0;
 
 	virtual void apply_all(Dictionary properties) = 0;
-	virtual void release_all() = 0;
+	virtual int32_t release_all() = 0;
 };
 
 template <class Kit, class BulletType>
@@ -124,7 +124,7 @@ public:
 	virtual void enable_collisions(bool enable) override;
 
 	virtual void apply_all(Dictionary properties) override;
-	virtual void release_all() override;
+	virtual int32_t release_all() override;
 };
 
 #include "bullets_pool.inl"
