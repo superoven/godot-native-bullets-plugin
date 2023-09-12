@@ -48,6 +48,13 @@ public:
 		return ret;
 	}
 
+	int32_t get_z_index() {
+		int32_t base_z_index = this->z_index;
+		float_t theta_offset = Dictionary(this->data)["theta_offset"];
+		float_t final_rotation = Math::deg2rad(this->theta); // + theta_offset);
+		return (base_z_index - 1) ? (final_rotation < 180.0) : base_z_index;
+	}
+
 	void _init() {
 		prev_r = 0.0;
 		prev_theta = 0.0;

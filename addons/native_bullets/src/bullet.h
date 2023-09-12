@@ -37,6 +37,8 @@ public:
 	float_t acceleration_speed = 0.0;
 	// Maximum Speed we can accelerate to
 	float_t max_speed = std::numeric_limits<float>::max();
+	int32_t z_index = 0;
+
 	Color modulate;
 	Color visual_modulate;
 	float glow_degree;
@@ -59,6 +61,8 @@ public:
 
 	Transform2D get_transform() { return transform; }
 	Transform2D get_visual_transform() { return visual_transform; }
+
+	int32_t get_z_index() { return z_index; }
 
 	static void _register_methods() {
 		register_property<Bullet, RID>("item_rid", &Bullet::set_item_rid, &Bullet::get_item_rid, RID());

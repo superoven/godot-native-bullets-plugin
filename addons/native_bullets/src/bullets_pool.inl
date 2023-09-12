@@ -276,6 +276,7 @@ int32_t AbstractBulletsPool<Kit, BulletType>::_process(float delta) {
 			}
 			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->get_visual_transform());
 			VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
+			VisualServer::get_singleton()->canvas_item_set_z_index(bullet->item_rid, bullet->get_z_index());
 			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->get_transform());
 		}
 	} else {
@@ -290,6 +291,7 @@ int32_t AbstractBulletsPool<Kit, BulletType>::_process(float delta) {
 			}
 			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->get_visual_transform());
 			VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
+			VisualServer::get_singleton()->canvas_item_set_z_index(bullet->item_rid, bullet->get_z_index());
 		}
 	}
 	return amount_variation;
@@ -326,7 +328,7 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 			bullet->set("lifetime", properties["lifetime"]);
 		}
 
-		_process_animation(bullet, 0.0f);  // Process the first frame of animation
+		_process_bullet(bullet, 0.0f);  // Process the first frame of animation
 		VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->visual_transform);
 		VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
 
