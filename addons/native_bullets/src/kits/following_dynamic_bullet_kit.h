@@ -113,6 +113,8 @@ class FollowingDynamicBulletsPool : public AbstractBulletsPool<FollowingDynamicB
 		VisualServer::get_singleton()->canvas_item_add_texture_rect(bullet->item_rid,
 			texture_rect,
 			texture_rid);
+		bullet->z_index = kit->z_index;
+		VisualServer::get_singleton()->canvas_item_set_z_index(bullet->item_rid, bullet->get_z_index());
 	}
 
 	// void _disable_bullet(FollowingDynamicBullet* bullet); Use default implementation.

@@ -24,25 +24,13 @@ public:
 	Transform2D get_transform() {
 		Transform2D prev_transform = this->_get_transform(this->prev_r, this->prev_theta);
 		Transform2D final_transform = this->_get_transform(this->r, this->theta);
-		Vector2 dir = final_transform.get_origin() - prev_transform.get_origin();// + this->delta_velocity;
-		// dir = dir.rotated(final_transform.get_rotation());
-		// float_t theta_offset = Dictionary(this->data)["theta_offset"];
-		// Godot::print("dir angle: {0} theta_offset: {1} final_transform angle: {2}", dir.angle(), theta_offset, final_transform.get_rotation());
-		// float_t basis_rotation = transform.get_rotation();
-		// final_transform.set_rotation(dir.angle() - basis_rotation);
+		Vector2 dir = final_transform.get_origin() - prev_transform.get_origin();
 		final_transform.set_rotation(dir.angle());
 		return final_transform;
 	}
 
 	Transform2D _get_transform(float_t _r, float_t _theta) {
-		// Vector2 origin = transform.get_origin();
-		// float_t base_rotation = transform.get_rotation();
-		// Godot::print("base_rotation: {0}. theta: {1}", base_rotation, _theta);
-		// float_t final_rotation = base_rotation + Math::deg2rad(_theta);
-		// Dictionary anim = Dictionary(this->data)->get("theta");
 		float_t theta_offset = Dictionary(this->data)["theta_offset"];
-
-		// Godot::print("theta_offset: {0}", theta_offset);
 		float_t final_rotation = Math::deg2rad(_theta + theta_offset);
 		Transform2D ret = transform.translated(Vector2::RIGHT.rotated(final_rotation) * _r);
 		return ret;
@@ -51,8 +39,13 @@ public:
 	int32_t get_z_index() {
 		int32_t base_z_index = this->z_index;
 		float_t theta_offset = Dictionary(this->data)["theta_offset"];
-		float_t final_rotation = Math::deg2rad(this->theta); // + theta_offset);
-		return (base_z_index - 1) ? (final_rotation < 180.0) : base_z_index;
+		// float_t final_rotation = Math::deg2rad(this->theta);
+		// float_t raw_rot = this->theta + theta_offset;
+		// float_t num_times = raw_rot % 360.0;
+		float_t normalized_rotation = fmod(this->theta + theta_offset, 360.0);
+		// return (base_z_index - 1) ? (normalized_rotation < 180.0) : base_z_index;
+		// return (base_z_index - 1) ? (normalized_rotation <= 270.0 && normalized_rotation >= 90.0) : base_z_index;
+		return (base_z_index) ? (normalized_rotation <= 270.0 && normalized_rotation >= 90.0) : (base_z_index - 1);
 	}
 
 	void _init() {
@@ -60,19 +53,6 @@ public:
 		prev_theta = 0.0;
 		r = 0.0;
 		theta = 0.0;
-	}
-
-	static void _register_methods() {
-		// register_property<PolarBullet, Transform2D>("transform",
-		// 	&PolarBullet::set_transform,
-		// 	&PolarBullet::get_transform, Transform2D());
-		// register_property<PolarBullet, Transform2D>("starting_transform",
-		// 	&PolarBullet::starting_transform, Transform2D());
-		// register_property<PolarBullet, Vector2>("velocity",
-		// 	&PolarBullet::set_velocity,
-		// 	&PolarBullet::get_velocity, Vector2());
-		// register_property<PolarBullet, float>("starting_speed",
-		// 	&PolarBullet::starting_speed, 0.0f);
 	}
 };
 
@@ -122,6 +102,8 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 		VisualServer::get_singleton()->canvas_item_add_texture_rect(bullet->item_rid,
 			texture_rect,
 			texture_rid);
+		bullet->z_index = kit->z_index;
+		VisualServer::get_singleton()->canvas_item_set_z_index(bullet->item_rid, bullet->get_z_index());
 		// Vector2 normal = Vector2::RIGHT; //.rotated(bullet->transform->get_angle());
 		// VisualServer::get_singleton()->canvas_item_add_line(bullet->item_rid,
 		// 	// bullet->transform.get_origin(),
@@ -131,15 +113,6 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 		// 	Color(0.0, 0.0, 0.0, 0.0),
 		// 	3.0);
 	}
-
-	// void _disable_bullet(Bullet* bullet); Use default implementation.
-
-	// bool _adjust_r(PolarBullet* bullet, bool loop, float delta) {
-	// 	float_t adjusted_lifetime = bullet->lifetime / bullet->lifetime_curves_span;
-	// 	if(loop) {
-	// 		adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
-	// 	}
-	// }
 
 	bool _process_bullet(PolarBullet* bullet, float delta) {
 		if(kit->r_over_lifetime.is_valid()) {

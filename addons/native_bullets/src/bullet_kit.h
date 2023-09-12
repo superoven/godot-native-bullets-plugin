@@ -57,6 +57,8 @@ public:
 	// Can be used to offset the bullets animation by a unique amount to avoid having them animate in sync.
 	int32_t unique_modulate_component = 0;
 
+	int32_t z_index = 0;
+
 	// Additional data the user can set via the editor.
 	Variant data;
 
@@ -93,6 +95,10 @@ public:
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_ENUM, "None,Red,Green,Blue,Alpha");
 		
 		register_property<BulletKit, Variant>("data", &BulletKit::data, Dictionary(),
+			GODOT_METHOD_RPC_MODE_DISABLED, (godot_property_usage_flags)(GODOT_PROPERTY_USAGE_DEFAULT | GODOT_PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
+			GODOT_PROPERTY_HINT_NONE);
+		
+		register_property<BulletKit, int32_t>("z_index", &BulletKit::z_index, 0,
 			GODOT_METHOD_RPC_MODE_DISABLED, (godot_property_usage_flags)(GODOT_PROPERTY_USAGE_DEFAULT | GODOT_PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
 			GODOT_PROPERTY_HINT_NONE);
 		
