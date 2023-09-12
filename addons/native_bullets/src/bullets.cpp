@@ -424,7 +424,7 @@ Variant Bullets::get_bullet_property(Variant id, String property) {
 }
 
 void Bullets::release_all() {
-	Godot::print("Start `release_all`. Active Bullets: {0}", active_bullets);
+	// Godot::print("Start `release_all`. Active Bullets: {0}", active_bullets);
 	int32_t amount_variation = 0;
 	Array bullet_kits = bullets_environment->get("bullet_kits");
 	for(int32_t i = 0; i < bullet_kits.size(); i++) {
@@ -436,5 +436,5 @@ void Bullets::release_all() {
 	}
 	available_bullets -= amount_variation;
 	active_bullets += amount_variation;
-	Godot::print("Finished `release_all`. Active Bullets: {0} released: {1}", active_bullets, amount_variation);
+	// Godot::print("Finished `release_all`. Active Bullets: {0} released: {1}", active_bullets, amount_variation);
 }
