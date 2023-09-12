@@ -311,16 +311,16 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 		bullet->modulate = kit->base_modulate_color;
 		// Godot::print("SEtting bullet to active: {0}", bullet->active);
 
-		if(collisions_enabled)
-			Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, false);
+		// if(collisions_enabled)
+		// 	Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, false);
 
 		Array keys = properties.keys();
 		for(int32_t i = 0; i < keys.size(); i++) {
 			bullet->set(keys[i], properties[keys[i]]);
 		}
 
-		if(collisions_enabled)
-			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->get_transform());
+		// if(collisions_enabled)
+		// 	Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->get_transform());
 
 		_enable_bullet(bullet);
 		// Set lifetime after enabling to overwrite the 0.0f it just was set to
@@ -331,6 +331,10 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 		_process_bullet(bullet, 0.0f);  // Process the first frame of animation
 		VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->visual_transform);
 		VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
+		if(collisions_enabled) {
+			Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, false);
+			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->get_transform());
+		}
 
 		return BulletID(bullet->shape_index, bullet->cycle, set_index);
 	}
