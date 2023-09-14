@@ -45,10 +45,20 @@ public:
 		float_t normalized_rotation = fmod(this->theta + theta_offset, 360.0);
 		// return (base_z_index - 1) ? (normalized_rotation < 180.0) : base_z_index;
 		// return (base_z_index - 1) ? (normalized_rotation <= 270.0 && normalized_rotation >= 90.0) : base_z_index;
-		return (base_z_index) ? (normalized_rotation <= 270.0 && normalized_rotation >= 90.0) : (base_z_index - 1);
+		// return (base_z_index - 1) ? (normalized_rotation <= 270.0 && normalized_rotation >= 90.0) : (base_z_index + 1);
+		// Godot::print("normalized_rotation: {0}", normalized_rotation);
+		// int32_t ret = (base_z_index - 1) ? (normalized_rotation <= 270.0 && normalized_rotation >= 90.0) : 1000;//(base_z_index + 1);
+		// Godot::print("normalized_rotation: {0} ret: {1}", normalized_rotation, ret);
+		// int32_t ret = (base_z_index - 1) ? (normalized_rotation <= 180.0 && normalized_rotation >= 90.0) : 1000;//(base_z_index + 1);
+		int32_t ret = (base_z_index - 1) ? (normalized_rotation <= 90.0 && normalized_rotation >= 270.0) : 1000;//(base_z_index + 1);
+		return ret;
 	}
 
 	void _init() {
+		this->reset();
+	}
+
+	void reset() {
 		prev_r = 0.0;
 		prev_theta = 0.0;
 		r = 0.0;
@@ -67,8 +77,10 @@ public:
 	// bool lifetime_curves_loop = true;
 	// bool free_after_lifetime = false;
 	bool r_loop = true;
+	bool r_as_speed = false;
 	Ref<Curve> r_over_lifetime;
 	bool theta_loop = true;
+	bool theta_as_speed = false;
 	Ref<Curve> theta_over_lifetime;
 
 	static void _register_methods() {
@@ -81,6 +93,11 @@ public:
 		register_property<PolarBulletKit, bool>("r_loop", &PolarBulletKit::r_loop, false,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
 		register_property<PolarBulletKit, bool>("theta_loop", &PolarBulletKit::theta_loop, false,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		
+		register_property<PolarBulletKit, bool>("r_as_speed", &PolarBulletKit::r_as_speed, false,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBulletKit, bool>("theta_as_speed", &PolarBulletKit::theta_as_speed, false,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
 
 		BULLET_KIT_REGISTRATION(PolarBulletKit, PolarBullet)
@@ -95,6 +112,7 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 	void _enable_bullet(PolarBullet* bullet) {
 		// Reset the bullet lifetime.
 		bullet->lifetime = 0.0f;
+		bullet->reset();
 		Rect2 texture_rect = Rect2(-kit->texture->get_size() / 2.0f, kit->texture->get_size());
 		RID texture_rid = kit->texture->get_rid();
 		
@@ -121,7 +139,12 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 				adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
 			}
 			bullet->prev_r = bullet->r;
-			bullet->r = kit->r_over_lifetime->interpolate(adjusted_lifetime);
+			float_t interp_val = kit->r_over_lifetime->interpolate(adjusted_lifetime);
+			if (kit->r_as_speed) {
+				bullet->r += interp_val;
+			} else {
+				bullet->r = interp_val;
+			}
 		}
 
 		// TODO: This could be abstracted if we really wanted
@@ -131,7 +154,12 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 				adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
 			}
 			bullet->prev_theta = bullet->theta;
-			bullet->theta = kit->theta_over_lifetime->interpolate(adjusted_lifetime);
+			float_t interp_val = kit->theta_over_lifetime->interpolate(adjusted_lifetime);
+			if (kit->theta_as_speed) {
+				bullet->theta += interp_val;
+			} else {
+				bullet->theta = interp_val;
+			}
 		}
 
 		_process_acceleration(bullet, delta);
