@@ -24,7 +24,7 @@ public:
 	Transform2D get_transform() {
 		Transform2D prev_transform = this->_get_transform(this->prev_r, this->prev_theta);
 		Transform2D final_transform = this->_get_transform(this->r, this->theta);
-		Vector2 dir = final_transform.get_origin() - prev_transform.get_origin();
+		Vector2 dir = final_transform.get_origin() - prev_transform.get_origin() + delta_velocity;
 		final_transform.set_rotation(dir.angle());
 		return final_transform;
 	}
@@ -141,10 +141,13 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 			bullet->prev_r = bullet->r;
 			float_t interp_val = kit->r_over_lifetime->interpolate(adjusted_lifetime);
 			if (kit->r_as_speed) {
-				bullet->r += interp_val;
+				bullet->r += interp_val * delta;
 			} else {
 				bullet->r = interp_val;
 			}
+		} else {
+			float_t speed = Dictionary(bullet->data)["r_speed"];
+			bullet->r += speed * delta;
 		}
 
 		// TODO: This could be abstracted if we really wanted
@@ -156,10 +159,13 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 			bullet->prev_theta = bullet->theta;
 			float_t interp_val = kit->theta_over_lifetime->interpolate(adjusted_lifetime);
 			if (kit->theta_as_speed) {
-				bullet->theta += interp_val;
+				bullet->theta += interp_val * delta;
 			} else {
 				bullet->theta = interp_val;
 			}
+		} else {
+			float_t speed = Dictionary(bullet->data)["theta_speed"];
+			bullet->theta += speed * delta;
 		}
 
 		_process_acceleration(bullet, delta);
