@@ -78,27 +78,42 @@ public:
 	// bool free_after_lifetime = false;
 	bool r_loop = true;
 	bool r_as_speed = false;
+	float_t r_min = 0.0;
+	float_t r_max = 1.0;
 	Ref<Curve> r_over_lifetime;
 	bool theta_loop = true;
 	bool theta_as_speed = false;
+	float_t theta_min = 0.0;
+	float_t theta_max = 0.0;
 	Ref<Curve> theta_over_lifetime;
 
 	static void _register_methods() {
 		register_property<PolarBulletKit, Ref<Texture>>("texture", &PolarBulletKit::texture, Ref<Texture>(), 
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Texture");
-		register_property<PolarBulletKit, Ref<Curve>>("r_over_lifetime", &PolarBulletKit::r_over_lifetime, Ref<Curve>(),
-			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
-		register_property<PolarBulletKit, Ref<Curve>>("theta_over_lifetime", &PolarBulletKit::theta_over_lifetime, Ref<Curve>(), 
-			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
+		
+		// R Properties
 		register_property<PolarBulletKit, bool>("r_loop", &PolarBulletKit::r_loop, false,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBulletKit, float_t>("r_min", &PolarBulletKit::r_min, 0.0,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBulletKit, float_t>("r_max", &PolarBulletKit::r_max, 1.0,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBulletKit, bool>("r_as_speed", &PolarBulletKit::r_as_speed, false,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBulletKit, Ref<Curve>>("r_over_lifetime", &PolarBulletKit::r_over_lifetime, Ref<Curve>(),
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
+		
+		// Theta Properties
 		register_property<PolarBulletKit, bool>("theta_loop", &PolarBulletKit::theta_loop, false,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
-		
-		register_property<PolarBulletKit, bool>("r_as_speed", &PolarBulletKit::r_as_speed, false,
+		register_property<PolarBulletKit, float_t>("theta_min", &PolarBulletKit::theta_min, 0.0,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBulletKit, float_t>("theta_max", &PolarBulletKit::theta_max, 1.0,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
 		register_property<PolarBulletKit, bool>("theta_as_speed", &PolarBulletKit::theta_as_speed, false,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBulletKit, Ref<Curve>>("theta_over_lifetime", &PolarBulletKit::theta_over_lifetime, Ref<Curve>(), 
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
 
 		BULLET_KIT_REGISTRATION(PolarBulletKit, PolarBullet)
 	}
@@ -140,10 +155,11 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 			}
 			bullet->prev_r = bullet->r;
 			float_t interp_val = kit->r_over_lifetime->interpolate(adjusted_lifetime);
+			float_t final_val = Math::lerp(kit->r_min, kit->r_max, interp_val);
 			if (kit->r_as_speed) {
-				bullet->r += interp_val * delta;
+				bullet->r += final_val * delta;
 			} else {
-				bullet->r = interp_val;
+				bullet->r = final_val;
 			}
 		} else {
 			float_t speed = Dictionary(bullet->data)["r_speed"];
@@ -158,10 +174,11 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 			}
 			bullet->prev_theta = bullet->theta;
 			float_t interp_val = kit->theta_over_lifetime->interpolate(adjusted_lifetime);
+			float_t final_val = Math::lerp(kit->theta_min, kit->theta_max, interp_val);
 			if (kit->theta_as_speed) {
-				bullet->theta += interp_val * delta;
+				bullet->theta += final_val * delta;
 			} else {
-				bullet->theta = interp_val;
+				bullet->theta = final_val;
 			}
 		} else {
 			float_t speed = Dictionary(bullet->data)["theta_speed"];
