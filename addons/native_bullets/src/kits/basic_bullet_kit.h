@@ -43,6 +43,14 @@ class BasicBulletsPool : public AbstractBulletsPool<BasicBulletKit, Bullet> {
 			texture_rid);
 		bullet->z_index = kit->z_index;
 		VisualServer::get_singleton()->canvas_item_set_z_index(bullet->item_rid, bullet->get_z_index());
+		// Vector2 normal = Vector2::RIGHT; //.rotated(bullet->transform->get_angle());
+		// VisualServer::get_singleton()->canvas_item_add_line(bullet->item_rid,
+		// 	// bullet->transform.get_origin(),
+		// 	Vector2(0.0, 0.0),
+		// 	// bullet->transform.get_origin() + (normal * 20.0),
+		// 	(normal * 30.0),
+		// 	Color(0.0, 0.0, 0.0, 0.0),
+		// 	3.0);
 	}
 
 	// void _disable_bullet(Bullet* bullet); Use default implementation.

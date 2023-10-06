@@ -31,7 +31,8 @@ public:
 
 	Transform2D _get_transform(float_t _r, float_t _theta) {
 		float_t theta_offset = Dictionary(this->data)["theta_offset"];
-		float_t final_rotation = Math::deg2rad(_theta + theta_offset);
+		float_t theta_mult = Dictionary(this->data)["theta_mult"];
+		float_t final_rotation = Math::deg2rad(_theta + theta_offset) * theta_mult;
 		Transform2D ret = transform.translated(Vector2::RIGHT.rotated(final_rotation) * _r);
 		return ret;
 	}
