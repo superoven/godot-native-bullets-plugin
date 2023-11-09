@@ -138,6 +138,7 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 			texture_rid);
 		bullet->z_index = kit->z_index;
 		VisualServer::get_singleton()->canvas_item_set_z_index(bullet->item_rid, bullet->get_z_index());
+		bullet->r = Dictionary(bullet->data)["r_init"];
 		// Vector2 normal = Vector2::RIGHT; //.rotated(bullet->transform->get_angle());
 		// VisualServer::get_singleton()->canvas_item_add_line(bullet->item_rid,
 		// 	// bullet->transform.get_origin(),
