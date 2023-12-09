@@ -52,6 +52,7 @@ template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet, float delta) {
 	Transform2D base_transform = bullet->get_transform();
 	bullet->visual_transform = base_transform;
+	// Color base_color = bullet->modulate;
 	Color base_color = Color(
 		bullet->modulate.r * bullet->glow_degree,
 		bullet->modulate.g * bullet->glow_degree,

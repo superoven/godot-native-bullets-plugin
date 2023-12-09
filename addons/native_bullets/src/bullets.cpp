@@ -15,6 +15,8 @@ using namespace godot;
 
 void Bullets::_register_methods() {
 	register_method("_physics_process", &Bullets::_physics_process);
+	register_method("set_should_process", &Bullets::set_should_process);
+	register_method("get_should_process", &Bullets::get_should_process);
 	register_method("_ready", &Bullets::_ready);
 
 	register_method("mount", &Bullets::mount);
@@ -76,6 +78,9 @@ void Bullets::_physics_process(float delta) {
 	if(Engine::get_singleton()->is_editor_hint()) {
 		return;
 	}
+	if (!this->get_should_process()) {
+		return;
+	}
 	int32_t bullets_variation = 0;
 	for(int32_t i = 0; i < pool_sets.size(); i++) {
 		for(int32_t j = 0; j < pool_sets[i].pools.size(); j++) {
@@ -85,6 +90,15 @@ void Bullets::_physics_process(float delta) {
 		}
 	}
 }
+
+void Bullets::set_should_process(bool should_process) {
+	this->should_process = should_process;
+}
+
+bool Bullets::get_should_process() {
+	return this->should_process;
+}
+
 
 void Bullets::_clear_rids() {
 	for(int32_t i = 0; i < shared_areas.size(); i++) {

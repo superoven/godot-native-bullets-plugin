@@ -46,6 +46,8 @@ private:
 	int32_t active_bullets = 0;
 	int32_t total_bullets = 0;
 
+	bool should_process = false;
+
 	Array shared_areas;
 	PoolIntArray invalid_id;
 
@@ -62,6 +64,8 @@ public:
 	void _ready();
 
 	void _physics_process(float delta);
+	void set_should_process(bool should_process);
+	bool get_should_process();
 
 	void mount(Node* bullets_environment);
 	void unmount(Node* bullets_environment);
