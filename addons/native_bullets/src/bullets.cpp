@@ -14,6 +14,17 @@ using namespace godot;
 
 
 void Bullets::_register_methods() {
+
+	register_signal<Bullets>(
+		"bullet_emitted", "bullet_id", GODOT_VARIANT_TYPE_POOL_INT_ARRAY
+	);
+	register_signal<Bullets>(
+		"bullet_removed", "bullet_id", GODOT_VARIANT_TYPE_POOL_INT_ARRAY
+	);
+	register_signal<Bullets>(
+		"bullet_released", "bullet_id", GODOT_VARIANT_TYPE_POOL_INT_ARRAY
+	);
+
 	register_method("_physics_process", &Bullets::_physics_process);
 	register_method("set_should_process", &Bullets::set_should_process);
 	register_method("get_should_process", &Bullets::get_should_process);
@@ -45,11 +56,17 @@ void Bullets::_register_methods() {
 	register_method("get_bullet_property", &Bullets::get_bullet_property);
 	register_method("apply_bullet_properties", &Bullets::apply_bullet_properties);
 
-	register_method("apply_bullets_animation", &Bullets::apply_bullets_animation);
+	register_method("apply_bullet_animation", &Bullets::apply_bullet_animation);
 
 	register_method("apply_bullet_properties_to_kit", &Bullets::apply_bullet_properties_to_kit);
-	register_method("apply_bullets_animation_to_kit", &Bullets::apply_bullets_animation_to_kit);
+	register_method("apply_bullet_animation_to_kit", &Bullets::apply_bullet_animation_to_kit);
+	
+	register_method("enable_bullet_collisions", &Bullets::enable_bullet_collisions);
 	register_method("enable_collisions_to_kit", &Bullets::enable_collisions_to_kit);
+		
+	register_method("flag_bullet_for_removal", &Bullets::flag_bullet_for_removal);
+	register_method("flag_for_removal", &Bullets::flag_for_removal);
+
 	register_method("release_all", &Bullets::release_all);
 }
 
@@ -271,6 +288,7 @@ Variant Bullets::spawn_bullet(Ref<BulletKit> kit, Dictionary properties) {
 			to_return.set(0, bullet_id.index);
 			to_return.set(1, bullet_id.cycle);
 			to_return.set(2, bullet_id.set);
+			this->emit_signal("bullet_emitted", to_return);
 			return to_return;
 		}
 	}
@@ -391,11 +409,11 @@ void Bullets::set_bullet_property(Variant id, String property, Variant value) {
 	}
 }
 
-void Bullets::apply_bullets_animation(Variant id, String animation_name) {
+void Bullets::apply_bullet_animation(Variant id, String animation_name) {
 	PoolIntArray bullet_id = id.operator PoolIntArray();
 	int32_t pool_index = _get_pool_index(bullet_id[2], bullet_id[0]);
 	if(pool_index >= 0) {
-		pool_sets[bullet_id[2]].pools[pool_index].pool->apply_bullets_animation(BulletID(bullet_id[0], bullet_id[1], bullet_id[2]), animation_name);
+		pool_sets[bullet_id[2]].pools[pool_index].pool->apply_bullet_animation(BulletID(bullet_id[0], bullet_id[1], bullet_id[2]), animation_name);
 	}
 }
 
@@ -414,10 +432,18 @@ void Bullets::apply_bullet_properties_to_kit(Ref<BulletKit> kit, Dictionary prop
 	}
 }
 
-void Bullets::apply_bullets_animation_to_kit(Ref<BulletKit> kit, String animation_name) {
+void Bullets::apply_bullet_animation_to_kit(Ref<BulletKit> kit, String animation_name) {
 	if(kits_to_set_pool_indices.has(kit)) {
 		PoolIntArray set_pool_indices = kits_to_set_pool_indices[kit];
-		pool_sets[set_pool_indices[0]].pools[set_pool_indices[1]].pool->apply_bullets_animation_to_all(animation_name);
+		pool_sets[set_pool_indices[0]].pools[set_pool_indices[1]].pool->apply_bullet_animation_to_all(animation_name);
+	}
+}
+
+void Bullets::enable_bullet_collisions(Variant id, bool enabled) {
+	PoolIntArray bullet_id = id.operator PoolIntArray();
+	int32_t pool_index = _get_pool_index(bullet_id[2], bullet_id[0]);
+	if(pool_index >= 0) {
+		pool_sets[bullet_id[2]].pools[pool_index].pool->enable_bullet_collisions(BulletID(bullet_id[0], bullet_id[1], bullet_id[2]), enabled);
 	}
 }
 
@@ -425,6 +451,21 @@ void Bullets::enable_collisions_to_kit(Ref<BulletKit> kit, bool enabled) {
 	if(kits_to_set_pool_indices.has(kit)) {
 		PoolIntArray set_pool_indices = kits_to_set_pool_indices[kit];
 		pool_sets[set_pool_indices[0]].pools[set_pool_indices[1]].pool->enable_collisions(enabled);
+	}
+}
+
+void Bullets::flag_bullet_for_removal(Variant id) {
+	PoolIntArray bullet_id = id.operator PoolIntArray();
+	int32_t pool_index = _get_pool_index(bullet_id[2], bullet_id[0]);
+	if(pool_index >= 0) {
+		pool_sets[bullet_id[2]].pools[pool_index].pool->flag_bullet_for_removal(BulletID(bullet_id[0], bullet_id[1], bullet_id[2]));
+	}
+}
+
+void Bullets::flag_for_removal(Ref<BulletKit> kit) {
+	if(kits_to_set_pool_indices.has(kit)) {
+		PoolIntArray set_pool_indices = kits_to_set_pool_indices[kit];
+		pool_sets[set_pool_indices[0]].pools[set_pool_indices[1]].pool->flag_for_removal();
 	}
 }
 

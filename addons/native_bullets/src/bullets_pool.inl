@@ -31,6 +31,7 @@ void AbstractBulletsPool<Kit, BulletType>::_enable_bullet(BulletType* bullet) {
 		texture_rid);
 }
 
+// TODO: Remove this
 template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::_disable_bullet(BulletType* bullet) {
 	VisualServer::get_singleton()->canvas_item_clear(bullet->item_rid);
@@ -184,6 +185,10 @@ void AbstractBulletsPool<Kit, BulletType>::_init(Node* parent_hint, RID shared_a
 	} else {
 		this->canvas_parent = viewport->find_world_2d()->get_canvas();
 	}
+
+	// Assign Bullets Singleton
+	// this->bullets_singleton = n->get_tree()->get_root()->get_node("Bullets");
+	this->bullets_singleton = Object::cast_to<Bullets>(this->viewport->get_node("/root/Bullets"));
 
 	// Put the bullet animations into the object directly
 	Array children = parent_hint->get_children();
@@ -357,6 +362,11 @@ bool AbstractBulletsPool<Kit, BulletType>::release_bullet(BulletID id) {
 template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::_release_bullet(int32_t index) {
 	BulletType* bullet = bullets[index];
+	PoolIntArray ret = this->bullets_singleton->invalid_id;
+	ret.set(0, bullet->shape_index);
+	ret.set(1, bullet->cycle);
+	ret.set(2, set_index);
+	this->bullets_singleton->emit_signal("bullet_released", ret);
 	
 	if(collisions_enabled)
 		Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, true);
@@ -425,7 +435,7 @@ void AbstractBulletsPool<Kit, BulletType>::apply_bullet_properties(BulletID id, 
 }
 
 template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::apply_bullets_animation(BulletID id, String animation_name) {
+void AbstractBulletsPool<Kit, BulletType>::apply_bullet_animation(BulletID id, String animation_name) {
 	if(is_bullet_valid(id)) {
 		int32_t bullet_index = shapes_to_indices[id.index - starting_shape_index];
 		BulletType* bullet = bullets[bullet_index];
@@ -486,18 +496,52 @@ int32_t AbstractBulletsPool<Kit, BulletType>::release_all() {
 	return amount_variation;
 }
 
-// TODO: If this works, we may want a function that disables
 template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::enable_collisions(bool enable) {
 	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
 		BulletType* bullet = bullets[i];
-		bullet->active = false;
+		bullet->active = !enable;
 		Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, !enable);
 	}
 }
 
 template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::apply_bullets_animation_to_all(String animation_name) {
+void AbstractBulletsPool<Kit, BulletType>::enable_bullet_collisions(BulletID id, bool enable) {
+	if(is_bullet_valid(id)) {
+		int32_t bullet_index = shapes_to_indices[id.index - starting_shape_index];
+		BulletType* bullet = bullets[bullet_index];
+		bullet->active = !enable;
+		Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, !enable);
+	}
+}
+
+template <class Kit, class BulletType>
+void AbstractBulletsPool<Kit, BulletType>::flag_for_removal() {
+	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
+		BulletType* bullet = bullets[i];
+		PoolIntArray ret = this->bullets_singleton->invalid_id;
+		ret.set(0, bullet->shape_index);
+		ret.set(1, bullet->cycle);
+		ret.set(2, set_index);
+		this->bullets_singleton->emit_signal("bullet_removed", ret);
+	}
+}
+
+template <class Kit, class BulletType>
+void AbstractBulletsPool<Kit, BulletType>::flag_bullet_for_removal(BulletID id) {
+	if(is_bullet_valid(id)) {
+		int32_t bullet_index = shapes_to_indices[id.index - starting_shape_index];
+		BulletType* bullet = bullets[bullet_index];
+		PoolIntArray ret = this->bullets_singleton->invalid_id;
+		ret.set(0, bullet->shape_index);
+		ret.set(1, bullet->cycle);
+		ret.set(2, set_index);
+		this->bullets_singleton->emit_signal("bullet_removed", ret);
+	}
+}
+
+template <class Kit, class BulletType>
+void AbstractBulletsPool<Kit, BulletType>::apply_bullet_animation_to_all(String animation_name) {
 	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
 		BulletType* bullet = bullets[i];
 		if (bullet->active) {

@@ -49,13 +49,15 @@ private:
 	bool should_process = false;
 
 	Array shared_areas;
-	PoolIntArray invalid_id;
+	
 
 	void _clear_rids();
 	int32_t _get_pool_index(int32_t set_index, int32_t bullet_index);
 
 public:
 	static void _register_methods();
+
+	PoolIntArray invalid_id;
 
 	Bullets();
 	~Bullets();
@@ -96,10 +98,15 @@ public:
 	void apply_bullet_properties(Variant id, Dictionary properties);
 	void apply_bullet_properties_to_kit(Ref<BulletKit> kit, Dictionary properties);
 
-	void apply_bullets_animation(Variant id, String animation_name);
-	void apply_bullets_animation_to_kit(Ref<BulletKit> kit, String animation_name);
+	void apply_bullet_animation(Variant id, String animation_name);
+	void apply_bullet_animation_to_kit(Ref<BulletKit> kit, String animation_name);
 	
+	void enable_bullet_collisions(Variant id, bool enabled);
 	void enable_collisions_to_kit(Ref<BulletKit> kit, bool enabled);
+
+	void flag_bullet_for_removal(Variant id);
+	void flag_for_removal(Ref<BulletKit> kit);
+
 	void release_all();
 };
 
