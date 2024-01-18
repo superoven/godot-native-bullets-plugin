@@ -18,8 +18,11 @@ void Bullets::_register_methods() {
 	register_signal<Bullets>(
 		"bullet_emitted", "bullet_id", GODOT_VARIANT_TYPE_POOL_INT_ARRAY
 	);
+	// TODO: Pass the grazed status rather than forcing us to look it up
 	register_signal<Bullets>(
-		"bullet_removed", "bullet_id", GODOT_VARIANT_TYPE_POOL_INT_ARRAY
+		"bullet_removed",
+		"bullet_id", GODOT_VARIANT_TYPE_POOL_INT_ARRAY
+		// "grazed", GODOT_VARIANT_TYPE_BOOL
 	);
 	register_signal<Bullets>(
 		"bullet_released", "bullet_id", GODOT_VARIANT_TYPE_POOL_INT_ARRAY
@@ -288,7 +291,8 @@ Variant Bullets::spawn_bullet(Ref<BulletKit> kit, Dictionary properties) {
 			to_return.set(0, bullet_id.index);
 			to_return.set(1, bullet_id.cycle);
 			to_return.set(2, bullet_id.set);
-			this->emit_signal("bullet_emitted", to_return);
+			// this->emit_signal("bullet_emitted", to_return);
+			this->call_deferred("emit_signal", Array::make("bullet_emitted", to_return));
 			return to_return;
 		}
 	}
