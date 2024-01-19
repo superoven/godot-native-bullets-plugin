@@ -21,11 +21,12 @@ void Bullets::_register_methods() {
 	// TODO: Pass the grazed status rather than forcing us to look it up
 	register_signal<Bullets>(
 		"bullet_removed",
-		"bullet_id", GODOT_VARIANT_TYPE_POOL_INT_ARRAY
-		// "grazed", GODOT_VARIANT_TYPE_BOOL
+		"bullet_id", GODOT_VARIANT_TYPE_POOL_INT_ARRAY,
+		"grazed", GODOT_VARIANT_TYPE_BOOL
 	);
 	register_signal<Bullets>(
-		"bullet_released", "bullet_id", GODOT_VARIANT_TYPE_POOL_INT_ARRAY
+		"bullet_released", "bullet_id", GODOT_VARIANT_TYPE_POOL_INT_ARRAY,
+		"grazed", GODOT_VARIANT_TYPE_BOOL
 	);
 
 	register_method("_physics_process", &Bullets::_physics_process);
