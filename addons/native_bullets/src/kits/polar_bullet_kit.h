@@ -21,6 +21,9 @@ public:
 	float_t theta; // in degrees
 	Vector2 delta_velocity;
 
+	Vector2 unit_dir_vector;
+	float starting_speed;
+
 	Transform2D get_transform() {
 		Transform2D prev_transform = this->_get_transform(this->prev_r, this->prev_theta);
 		Transform2D final_transform = this->_get_transform(this->r, this->theta);
@@ -40,19 +43,15 @@ public:
 	int32_t get_z_index() {
 		int32_t base_z_index = this->z_index;
 		float_t theta_offset = Dictionary(this->data)["theta_offset"];
-		// float_t final_rotation = Math::deg2rad(this->theta);
-		// float_t raw_rot = this->theta + theta_offset;
-		// float_t num_times = raw_rot % 360.0;
 		float_t normalized_rotation = fmod(this->theta + theta_offset, 360.0);
-		// return (base_z_index - 1) ? (normalized_rotation < 180.0) : base_z_index;
-		// return (base_z_index - 1) ? (normalized_rotation <= 270.0 && normalized_rotation >= 90.0) : base_z_index;
-		// return (base_z_index - 1) ? (normalized_rotation <= 270.0 && normalized_rotation >= 90.0) : (base_z_index + 1);
-		// Godot::print("normalized_rotation: {0}", normalized_rotation);
-		// int32_t ret = (base_z_index - 1) ? (normalized_rotation <= 270.0 && normalized_rotation >= 90.0) : 1000;//(base_z_index + 1);
-		// Godot::print("normalized_rotation: {0} ret: {1}", normalized_rotation, ret);
-		// int32_t ret = (base_z_index - 1) ? (normalized_rotation <= 180.0 && normalized_rotation >= 90.0) : 1000;//(base_z_index + 1);
 		int32_t ret = (base_z_index - 1) ? (normalized_rotation <= 90.0 && normalized_rotation >= 270.0) : 1000;//(base_z_index + 1);
 		return ret;
+	}
+
+	void set_velocity(Vector2 velocity) {
+		starting_speed = velocity.length();
+		this->velocity = velocity;
+		// Godot::print("Setting velocity! ", this->velocity);
 	}
 
 	void _init() {
@@ -64,6 +63,15 @@ public:
 		prev_theta = 0.0;
 		r = 0.0;
 		theta = 0.0;
+		unit_dir_vector = Vector2::RIGHT;
+	}
+
+	static void _register_methods() {
+		register_property<DynamicBullet, Vector2>("velocity",
+			&DynamicBullet::set_velocity,
+			&DynamicBullet::get_velocity, Vector2());
+		register_property<DynamicBullet, float>("starting_speed",
+			&DynamicBullet::starting_speed, 0.0f);
 	}
 };
 
@@ -88,10 +96,13 @@ public:
 	float_t theta_max = 0.0;
 	Ref<Curve> theta_over_lifetime;
 
+	bool lifetime_curves_loop = true;
+	Ref<Curve> speed_multiplier_over_lifetime;
+
 	static void _register_methods() {
 		register_property<PolarBulletKit, Ref<Texture>>("texture", &PolarBulletKit::texture, Ref<Texture>(), 
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Texture");
-		
+
 		// R Properties
 		register_property<PolarBulletKit, bool>("r_loop", &PolarBulletKit::r_loop, false,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
@@ -103,7 +114,7 @@ public:
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
 		register_property<PolarBulletKit, Ref<Curve>>("r_over_lifetime", &PolarBulletKit::r_over_lifetime, Ref<Curve>(),
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
-		
+
 		// Theta Properties
 		register_property<PolarBulletKit, bool>("theta_loop", &PolarBulletKit::theta_loop, false,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
@@ -114,6 +125,12 @@ public:
 		register_property<PolarBulletKit, bool>("theta_as_speed", &PolarBulletKit::theta_as_speed, false,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
 		register_property<PolarBulletKit, Ref<Curve>>("theta_over_lifetime", &PolarBulletKit::theta_over_lifetime, Ref<Curve>(), 
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
+
+		// Dynamic Speed Properties
+		register_property<PolarBulletKit, bool>("lifetime_curves_loop", &PolarBulletKit::lifetime_curves_loop, true,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBulletKit, Ref<Curve>>("speed_multiplier_over_lifetime", &PolarBulletKit::speed_multiplier_over_lifetime, Ref<Curve>(), 
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
 
 		BULLET_KIT_REGISTRATION(PolarBulletKit, PolarBullet)
@@ -131,7 +148,7 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 		bullet->reset();
 		Rect2 texture_rect = Rect2(-kit->texture->get_size() / 2.0f, kit->texture->get_size());
 		RID texture_rid = kit->texture->get_rid();
-		
+
 		// Configure the bullet to draw the kit texture each frame.
 		VisualServer::get_singleton()->canvas_item_add_texture_rect(bullet->item_rid,
 			texture_rect,
@@ -139,6 +156,12 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 		bullet->z_index = kit->z_index;
 		VisualServer::get_singleton()->canvas_item_set_z_index(bullet->item_rid, bullet->get_z_index());
 		bullet->r = Dictionary(bullet->data)["r_init"];
+		// Initialize to static unit vector (to support 0 speed)
+		if (!Math::is_equal_approx(bullet->velocity.length(), 0.0)) {
+			bullet->unit_dir_vector = bullet->velocity.normalized();
+			bullet->starting_speed = bullet->velocity.length();
+		}
+
 		// Vector2 normal = Vector2::RIGHT; //.rotated(bullet->transform->get_angle());
 		// VisualServer::get_singleton()->canvas_item_add_line(bullet->item_rid,
 		// 	// bullet->transform.get_origin(),
@@ -185,6 +208,19 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 		} else {
 			float_t speed = Dictionary(bullet->data)["theta_speed"];
 			bullet->theta += speed * delta;
+		}
+		
+		// TODO: Make this sane
+		// TODO: Handle the case of zero speed??
+		// Dynamic Movement processing
+		if(kit->speed_multiplier_over_lifetime.is_valid()) {
+			float_t adjusted_lifetime = bullet->lifetime / bullet->lifetime_curves_span;
+			if(kit->lifetime_curves_loop) {
+				adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
+			}
+			float_t speed_multiplier = kit->speed_multiplier_over_lifetime->interpolate(adjusted_lifetime);
+			// Vector2 dir_vec = Vector2::RIGHT.rotated(bullet->get_transform().get_rotation());
+			bullet->velocity = (bullet->unit_dir_vector) * bullet->starting_speed * speed_multiplier;
 		}
 
 		_process_acceleration(bullet, delta);
