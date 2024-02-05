@@ -15,14 +15,34 @@ using namespace godot;
 class PolarBullet : public Bullet {
 	GODOT_CLASS(PolarBullet, Bullet)
 public:
+	// Internal
 	float_t prev_r;
 	float_t prev_theta; // in degrees
 	float_t r;
 	float_t theta; // in degrees
 	Vector2 delta_velocity;
-
 	Vector2 unit_dir_vector;
 	float starting_speed;
+
+	// Polar Initialization
+	float_t r_init = 0.0;
+	float_t theta_offset = 0.0;
+	float_t theta_mult = 1.0;
+
+	// Configuation
+	bool r_loop = true;
+	bool r_as_speed = false;
+	float_t r_min = 0.0;
+	float_t r_max = 1.0;
+	Ref<Curve> r_over_lifetime;
+	bool theta_loop = true;
+	bool theta_as_speed = false;
+	float_t theta_min = 0.0;
+	float_t theta_max = 0.0;
+	Ref<Curve> theta_over_lifetime;
+
+	bool lifetime_curves_loop = true;
+	Ref<Curve> speed_multiplier_over_lifetime;
 
 	Transform2D get_transform() {
 		Transform2D prev_transform = this->_get_transform(this->prev_r, this->prev_theta);
@@ -33,8 +53,10 @@ public:
 	}
 
 	Transform2D _get_transform(float_t _r, float_t _theta) {
-		float_t theta_offset = Dictionary(this->data)["theta_offset"];
-		float_t theta_mult = Dictionary(this->data)["theta_mult"];
+		// float_t theta_offset = Dictionary(this->data)["theta_offset"];
+		// float_t theta_offset = theta_offset;
+		// float_t theta_mult = Dictionary(this->data)["theta_mult"];
+		// float_t theta_mult =theta_mult"];
 		float_t final_rotation = Math::deg2rad(_theta + theta_offset) * theta_mult;
 		Transform2D ret = transform.translated(Vector2::RIGHT.rotated(final_rotation) * _r);
 		return ret;
@@ -42,7 +64,7 @@ public:
 
 	int32_t get_z_index() {
 		int32_t base_z_index = this->z_index;
-		float_t theta_offset = Dictionary(this->data)["theta_offset"];
+		// float_t theta_offset = Dictionary(this->data)["theta_offset"];
 		float_t normalized_rotation = fmod(this->theta + theta_offset, 360.0);
 		int32_t ret = (base_z_index - 1) ? (normalized_rotation <= 90.0 && normalized_rotation >= 270.0) : 1000;//(base_z_index + 1);
 		return ret;
@@ -52,6 +74,10 @@ public:
 		starting_speed = velocity.length();
 		this->velocity = velocity;
 		// Godot::print("Setting velocity! ", this->velocity);
+	}
+
+	Vector2 get_velocity(Vector2 velocity) {
+		return this->velocity;
 	}
 
 	void _init() {
@@ -64,14 +90,54 @@ public:
 		r = 0.0;
 		theta = 0.0;
 		unit_dir_vector = Vector2::RIGHT;
+		starting_speed = 0.0;
+		// velocity = Vector2::ZERO;
 	}
 
 	static void _register_methods() {
-		register_property<DynamicBullet, Vector2>("velocity",
-			&DynamicBullet::set_velocity,
-			&DynamicBullet::get_velocity, Vector2());
-		register_property<DynamicBullet, float>("starting_speed",
-			&DynamicBullet::starting_speed, 0.0f);
+		// register_property<PolarBullet, Vector2>("velocity",
+		// 	&PolarBullet::set_velocity,
+		// 	&PolarBullet::get_velocity, Vector2());
+		register_property<PolarBullet, float>("starting_speed",
+			&PolarBullet::starting_speed, 0.0f);
+		
+		// Init Properties
+		register_property<PolarBullet, float_t>("r_init", &PolarBullet::r_init, 0.0,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBullet, float_t>("theta_offset", &PolarBullet::theta_offset, 0.0,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBullet, float_t>("theta_mult", &PolarBullet::theta_mult, 1.0,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+
+		// R Properties
+		register_property<PolarBullet, bool>("r_loop", &PolarBullet::r_loop, false,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBullet, float_t>("r_min", &PolarBullet::r_min, 0.0,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBullet, float_t>("r_max", &PolarBullet::r_max, 1.0,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBullet, bool>("r_as_speed", &PolarBullet::r_as_speed, false,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBullet, Ref<Curve>>("r_over_lifetime", &PolarBullet::r_over_lifetime, Ref<Curve>(),
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
+
+		// Theta Properties
+		register_property<PolarBullet, bool>("theta_loop", &PolarBullet::theta_loop, false,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBullet, float_t>("theta_min", &PolarBullet::theta_min, 0.0,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBullet, float_t>("theta_max", &PolarBullet::theta_max, 1.0,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBullet, bool>("theta_as_speed", &PolarBullet::theta_as_speed, false,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBullet, Ref<Curve>>("theta_over_lifetime", &PolarBullet::theta_over_lifetime, Ref<Curve>(), 
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
+
+		// Dynamic Speed Properties
+		register_property<PolarBullet, bool>("lifetime_curves_loop", &PolarBullet::lifetime_curves_loop, true,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
+		register_property<PolarBullet, Ref<Curve>>("speed_multiplier_over_lifetime", &PolarBullet::speed_multiplier_over_lifetime, Ref<Curve>(), 
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
 	}
 };
 
@@ -83,8 +149,6 @@ public:
 
 	Ref<Texture> texture;
 
-	// bool lifetime_curves_loop = true;
-	// bool free_after_lifetime = false;
 	bool r_loop = true;
 	bool r_as_speed = false;
 	float_t r_min = 0.0;
@@ -155,7 +219,8 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 			texture_rid);
 		bullet->z_index = kit->z_index;
 		VisualServer::get_singleton()->canvas_item_set_z_index(bullet->item_rid, bullet->get_z_index());
-		bullet->r = Dictionary(bullet->data)["r_init"];
+		// bullet->r = Dictionary(bullet->data)["r_init"];
+		bullet->r = bullet->r_init;
 		// Initialize to static unit vector (to support 0 speed)
 		if (!Math::is_equal_approx(bullet->velocity.length(), 0.0)) {
 			bullet->unit_dir_vector = bullet->velocity.normalized();
@@ -173,15 +238,15 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 	}
 
 	bool _process_bullet(PolarBullet* bullet, float delta) {
-		if(kit->r_over_lifetime.is_valid()) {
+		if(bullet->r_over_lifetime.is_valid()) {
 			float_t adjusted_lifetime = bullet->lifetime / bullet->lifetime_curves_span;
-			if(kit->r_loop) {
+			if(bullet->r_loop) {
 				adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
 			}
 			bullet->prev_r = bullet->r;
-			float_t interp_val = kit->r_over_lifetime->interpolate(adjusted_lifetime);
-			float_t final_val = Math::lerp(kit->r_min, kit->r_max, interp_val);
-			if (kit->r_as_speed) {
+			float_t interp_val = bullet->r_over_lifetime->interpolate(adjusted_lifetime);
+			float_t final_val = Math::lerp(bullet->r_min, bullet->r_max, interp_val);
+			if (bullet->r_as_speed) {
 				bullet->r += final_val * delta;
 			} else {
 				bullet->r = final_val;
@@ -192,15 +257,15 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 		}
 
 		// TODO: This could be abstracted if we really wanted
-		if(kit->theta_over_lifetime.is_valid()) {
+		if(bullet->theta_over_lifetime.is_valid()) {
 			float_t adjusted_lifetime = bullet->lifetime / bullet->lifetime_curves_span;
-			if(kit->theta_loop) {
+			if(bullet->theta_loop) {
 				adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
 			}
 			bullet->prev_theta = bullet->theta;
-			float_t interp_val = kit->theta_over_lifetime->interpolate(adjusted_lifetime);
-			float_t final_val = Math::lerp(kit->theta_min, kit->theta_max, interp_val);
-			if (kit->theta_as_speed) {
+			float_t interp_val = bullet->theta_over_lifetime->interpolate(adjusted_lifetime);
+			float_t final_val = Math::lerp(bullet->theta_min, bullet->theta_max, interp_val);
+			if (bullet->theta_as_speed) {
 				bullet->theta += final_val * delta;
 			} else {
 				bullet->theta = final_val;
@@ -209,17 +274,14 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 			float_t speed = Dictionary(bullet->data)["theta_speed"];
 			bullet->theta += speed * delta;
 		}
-		
-		// TODO: Make this sane
-		// TODO: Handle the case of zero speed??
+
 		// Dynamic Movement processing
-		if(kit->speed_multiplier_over_lifetime.is_valid()) {
+		if(bullet->speed_multiplier_over_lifetime.is_valid()) {
 			float_t adjusted_lifetime = bullet->lifetime / bullet->lifetime_curves_span;
-			if(kit->lifetime_curves_loop) {
+			if(bullet->lifetime_curves_loop) {
 				adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
 			}
-			float_t speed_multiplier = kit->speed_multiplier_over_lifetime->interpolate(adjusted_lifetime);
-			// Vector2 dir_vec = Vector2::RIGHT.rotated(bullet->get_transform().get_rotation());
+			float_t speed_multiplier = bullet->speed_multiplier_over_lifetime->interpolate(adjusted_lifetime);
 			bullet->velocity = (bullet->unit_dir_vector) * bullet->starting_speed * speed_multiplier;
 		}
 
