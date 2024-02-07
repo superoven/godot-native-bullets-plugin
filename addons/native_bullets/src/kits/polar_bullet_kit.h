@@ -35,12 +35,16 @@ public:
 	float_t r_min = 0.0;
 	float_t r_max = 1.0;
 	Ref<Curve> r_over_lifetime;
+	float_t r_lifetime_span = 1.0;
+
 	bool theta_loop = true;
 	bool theta_as_speed = false;
 	float_t theta_min = 0.0;
 	float_t theta_max = 0.0;
 	Ref<Curve> theta_over_lifetime;
+	float_t theta_lifetime_span = 1.0;
 
+	// Dynamic Bullet Functionality
 	bool lifetime_curves_loop = true;
 	Ref<Curve> speed_multiplier_over_lifetime;
 
@@ -120,6 +124,8 @@ public:
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
 		register_property<PolarBullet, Ref<Curve>>("r_over_lifetime", &PolarBullet::r_over_lifetime, Ref<Curve>(),
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
+		register_property<PolarBullet, float_t>("r_lifetime_span", &PolarBullet::r_lifetime_span, 1.0,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
 
 		// Theta Properties
 		register_property<PolarBullet, bool>("theta_loop", &PolarBullet::theta_loop, false,
@@ -132,6 +138,8 @@ public:
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
 		register_property<PolarBullet, Ref<Curve>>("theta_over_lifetime", &PolarBullet::theta_over_lifetime, Ref<Curve>(), 
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RESOURCE_TYPE, "Curve");
+		register_property<PolarBullet, float_t>("theta_lifetime_span", &PolarBullet::theta_lifetime_span, 1.0,
+			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT);
 
 		// Dynamic Speed Properties
 		register_property<PolarBullet, bool>("lifetime_curves_loop", &PolarBullet::lifetime_curves_loop, true,
@@ -149,6 +157,7 @@ public:
 
 	Ref<Texture> texture;
 
+	// TODO: Deprecate all this
 	bool r_loop = true;
 	bool r_as_speed = false;
 	float_t r_min = 0.0;
@@ -239,7 +248,7 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 
 	bool _process_bullet(PolarBullet* bullet, float delta) {
 		if(bullet->r_over_lifetime.is_valid()) {
-			float_t adjusted_lifetime = bullet->lifetime / bullet->lifetime_curves_span;
+			float_t adjusted_lifetime = bullet->lifetime / bullet->r_lifetime_span;
 			if(bullet->r_loop) {
 				adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
 			}
@@ -258,7 +267,7 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 
 		// TODO: This could be abstracted if we really wanted
 		if(bullet->theta_over_lifetime.is_valid()) {
-			float_t adjusted_lifetime = bullet->lifetime / bullet->lifetime_curves_span;
+			float_t adjusted_lifetime = bullet->lifetime / bullet->theta_lifetime_span;
 			if(bullet->theta_loop) {
 				adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
 			}
