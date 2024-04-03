@@ -84,6 +84,7 @@ void Bullets::_init() {
 	available_bullets = 0;
 	active_bullets = 0;
 	total_bullets = 0;
+	// draw_index = 0;
 	invalid_id = PoolIntArray();
 	invalid_id.resize(3);
 	invalid_id.set(0, -1);

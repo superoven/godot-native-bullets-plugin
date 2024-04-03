@@ -23,6 +23,7 @@ protected:
 	int32_t available_bullets = 0;
 	int32_t active_bullets = 0;
 	int32_t bullets_to_handle = 0;
+	int32_t draw_index = 0;
 	bool collisions_enabled;
 
 	CanvasLayer* canvas_layer;

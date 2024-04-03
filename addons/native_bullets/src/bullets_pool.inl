@@ -29,6 +29,10 @@ void AbstractBulletsPool<Kit, BulletType>::_enable_bullet(BulletType* bullet) {
 	VisualServer::get_singleton()->canvas_item_add_texture_rect(bullet->item_rid,
 		texture_rect,
 		texture_rid);
+	VisualServer::get_singleton()->canvas_item_set_draw_index(bullet->item_rid,
+		this->draw_index);
+	Godot::print("Setting draw_index to {0}", this->draw_index);
+	this->draw_index += 1;
 }
 
 // TODO: Remove this
@@ -200,6 +204,7 @@ void AbstractBulletsPool<Kit, BulletType>::_init(Node* parent_hint, RID shared_a
 
 	available_bullets = pool_size;
 	active_bullets = 0;
+	draw_index = 0;
 
 	bullets = new BulletType*[pool_size];
 	shapes_to_indices = new int32_t[pool_size];
@@ -337,6 +342,10 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 		_process_bullet(bullet, 0.0f);  // Process the first frame of animation
 		VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->visual_transform);
 		VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
+		VisualServer::get_singleton()->canvas_item_set_draw_index(bullet->item_rid,
+			this->draw_index);
+		this->draw_index += 1;
+		
 		if(collisions_enabled) {
 			Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, false);
 			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->get_transform());
@@ -495,6 +504,7 @@ int32_t AbstractBulletsPool<Kit, BulletType>::release_all() {
 			i += 1;
 		}
 	}
+	this->draw_index = 0;
 	return amount_variation;
 }
 
