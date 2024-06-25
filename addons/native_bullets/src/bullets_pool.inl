@@ -343,13 +343,23 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 		VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->visual_transform);
 		VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
 		VisualServer::get_singleton()->canvas_item_set_draw_index(bullet->item_rid,
-			this->draw_index);
+			-this->draw_index);
 		this->draw_index += 1;
-		
+
 		if(collisions_enabled) {
 			Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, false);
 			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->get_transform());
 		}
+
+		// invalid_id = PoolIntArray();
+		// invalid_id.resize(3);
+		// PoolIntArray to_return = i;
+		PoolIntArray to_return = PoolIntArray();
+		to_return.resize(3);
+		to_return.set(0, bullet->shape_index);
+		to_return.set(1, bullet->cycle);
+		to_return.set(2, set_index);
+		
 
 		return BulletID(bullet->shape_index, bullet->cycle, set_index);
 	}
@@ -377,7 +387,7 @@ void AbstractBulletsPool<Kit, BulletType>::_release_bullet(int32_t index) {
 	ret.set(2, set_index);
 	
 	// this->bullets_singleton->emit_signal("bullet_released", ret);
-	this->bullets_singleton->call_deferred("emit_signal", Array::make("bullet_released", ret, bullet->grazed));
+	this->bullets_singleton->call_deferred("emit_signal", Array::make("bullet_released", ret, bullet->grazed, bullet->is_player_bullet));
 	
 	if(collisions_enabled)
 		Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, true);
@@ -536,7 +546,7 @@ void AbstractBulletsPool<Kit, BulletType>::flag_for_removal() {
 		ret.set(1, bullet->cycle);
 		ret.set(2, set_index);
 		// this->bullets_singleton->emit_signal("bullet_removed", ret);
-		this->bullets_singleton->call_deferred("emit_signal", Array::make("bullet_removed", ret, bullet->grazed));
+		this->bullets_singleton->call_deferred("emit_signal", Array::make("bullet_removed", ret, bullet->grazed, bullet->is_player_bullet));
 	}
 }
 
@@ -551,7 +561,7 @@ void AbstractBulletsPool<Kit, BulletType>::flag_bullet_for_removal(BulletID id) 
 		ret.set(2, set_index);
 		// this->bullets_singleton->emit_signal("bullet_removed", ret);
 		// TODO: Make it so bullets are officially part of the object and not on data
-		this->bullets_singleton->call_deferred("emit_signal", Array::make("bullet_removed", ret, bullet->grazed));
+		this->bullets_singleton->call_deferred("emit_signal", Array::make("bullet_removed", ret, bullet->grazed, bullet->is_player_bullet));
 		// this->bullets_singleton->call_deferred("emit_signal", Array::make("bullet_removed", ret));
 	}
 }

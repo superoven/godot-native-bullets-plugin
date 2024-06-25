@@ -13,6 +13,8 @@ export(Array, int) var z_indices: Array
 
 var properties_regex : RegEx
 
+var is_finalized := false
+
 
 func _init():
 	properties_regex = RegEx.new()

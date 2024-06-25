@@ -294,7 +294,11 @@ Variant Bullets::spawn_bullet(Ref<BulletKit> kit, Dictionary properties) {
 			to_return.set(1, bullet_id.cycle);
 			to_return.set(2, bullet_id.set);
 			// this->emit_signal("bullet_emitted", to_return);
-			this->call_deferred("emit_signal", Array::make("bullet_emitted", to_return));
+			bool is_player_bullet = false;
+			if (properties.has("is_player_bullet")) {
+				is_player_bullet = properties["is_player_bullet"];
+			}
+			this->call_deferred("emit_signal", Array::make("bullet_emitted", to_return, is_player_bullet));
 			return to_return;
 		}
 	}

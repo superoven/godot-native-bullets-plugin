@@ -48,6 +48,7 @@ public:
 	float lifetime;
 	float lifetime_curves_span;
 	Variant data;
+	bool is_player_bullet = false;
 
 	void _init() {}
 
@@ -92,6 +93,8 @@ public:
 		register_property<Bullet, float>("lifetime_curves_span", &Bullet::lifetime_curves_span, 1.0f,
 			GODOT_METHOD_RPC_MODE_DISABLED, GODOT_PROPERTY_USAGE_DEFAULT, GODOT_PROPERTY_HINT_RANGE, "0.001,256.0");
 		register_property<Bullet, Variant>("data", &Bullet::data, Variant());
+
+		register_property<Bullet, bool>("is_player_bullet", &Bullet::is_player_bullet, false);
 	}
 };
 
