@@ -5,7 +5,7 @@ class_name BulletsEnvironment, "icons/icon_bullets_environment.svg"
 
 signal tree_entering(node)
 
-export(bool) var current = true setget _set_current
+export(bool) var current # = true setget _set_current
 export(Array, Resource) var bullet_kits: Array
 export(Array, int) var pools_sizes: Array
 export(Array, NodePath) var parents_hints: Array
@@ -13,7 +13,7 @@ export(Array, int) var z_indices: Array
 
 var properties_regex : RegEx
 
-var is_finalized := false
+export(bool) var is_finalized := false
 
 
 func _init():
@@ -24,21 +24,21 @@ func _init():
 func _enter_tree():
 	if Engine.editor_hint:
 		return
-	emit_signal("tree_entering", self)
+	# emit_signal("tree_entering", self)
 
 
 func _ready():
 	if Engine.editor_hint:
 		return
-	if current and is_instance_valid(Bullets):
-		Bullets.mount(self)
+	#if current and is_instance_valid(Bullets):
+	#	Bullets.mount(self)
 
 
 func _exit_tree():
 	if Engine.editor_hint:
 		return
-	if is_instance_valid(Bullets):
-		Bullets.unmount(self)
+	#if is_instance_valid(Bullets):
+	#	Bullets.unmount(self)
 
 
 func reload():
