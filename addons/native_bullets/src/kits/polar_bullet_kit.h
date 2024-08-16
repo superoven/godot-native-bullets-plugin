@@ -284,8 +284,10 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 			bullet->theta += speed * delta;
 		}
 
+		// Godot::print("Checking speed_multiplier_over_time...");
 		// Dynamic Movement processing
 		if(bullet->speed_multiplier_over_lifetime.is_valid()) {
+			// Godot::print("Speed Multiplier over time is set!!!");
 			float_t adjusted_lifetime = bullet->lifetime / bullet->lifetime_curves_span;
 			if(bullet->lifetime_curves_loop) {
 				adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
