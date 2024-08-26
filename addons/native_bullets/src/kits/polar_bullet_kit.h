@@ -95,6 +95,7 @@ public:
 		theta = 0.0;
 		unit_dir_vector = Vector2::RIGHT;
 		starting_speed = 0.0;
+		// Godot::print("Resetting bullet! ", this);
 		// velocity = Vector2::ZERO;
 	}
 
@@ -214,6 +215,36 @@ public:
 class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet> {
 
 	// void _init_bullet(Bullet* bullet); Use default implementation.
+
+	void _init_property_defaults(PolarBullet* bullet) {
+		// Godot::print("Init property defaults! ", this);
+		bullet->starting_speed = 0.0f;
+		
+		// Init Properties
+		bullet->r_init = 0.0;
+		bullet->theta_offset = 0.0;
+		bullet->theta_mult = 1.0;
+
+		// R Properties
+		bullet->r_loop = false;
+		bullet->r_min = 0.0;
+		bullet->r_max = 1.0;
+		bullet->r_as_speed = false;
+		bullet->r_over_lifetime = Ref<Curve>();
+		bullet->r_lifetime_span = 1.0;
+
+		// Theta Properties
+		bullet->theta_loop = false;
+		bullet->theta_min = 0.0;
+		bullet->theta_max = 1.0;
+		bullet->theta_as_speed = false;
+		bullet->theta_over_lifetime = Ref<Curve>();
+		bullet->theta_lifetime_span = 1.0;
+
+		// Dynamic Speed Properties
+		bullet->lifetime_curves_loop = true;
+		bullet->speed_multiplier_over_lifetime = Ref<Curve>();
+	}
 
 	void _enable_bullet(PolarBullet* bullet) {
 		// Reset the bullet lifetime.

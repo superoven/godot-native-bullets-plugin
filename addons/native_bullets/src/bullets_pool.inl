@@ -19,6 +19,9 @@ template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::_init_bullet(BulletType* bullet) {}
 
 template <class Kit, class BulletType>
+void AbstractBulletsPool<Kit, BulletType>::_init_property_defaults(BulletType* bullet) {}
+
+template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::_enable_bullet(BulletType* bullet) {
 	bullet->lifetime = 0.0f;
 	bullet->active = true;
@@ -324,6 +327,8 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 
 		// if(collisions_enabled)
 		// 	Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, false);
+
+		_init_property_defaults(bullet);
 
 		Array keys = properties.keys();
 		for(int32_t i = 0; i < keys.size(); i++) {

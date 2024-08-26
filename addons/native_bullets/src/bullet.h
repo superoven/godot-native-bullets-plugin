@@ -50,7 +50,9 @@ public:
 	Variant data;
 	bool is_player_bullet = false;
 
-	void _init() {}
+	void _init() {
+		Godot::print("Resetting orig bullet! ", this);
+	}
 
 	RID get_item_rid() { return item_rid; }
 	void set_item_rid(RID value) { ERR_PRINT("Can't edit the item rid of bullets!"); }
