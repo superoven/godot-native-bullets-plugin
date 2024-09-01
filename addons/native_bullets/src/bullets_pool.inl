@@ -319,16 +319,17 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 
 		BulletType* bullet = bullets[available_bullets];
 
-		bullet->animation_name = "";
-		bullet->animation_start_time = 0.0;
-		bullet->active = true;
-		bullet->modulate = kit->base_modulate_color;
 		// Godot::print("SEtting bullet to active: {0}", bullet->active);
 
 		// if(collisions_enabled)
 		// 	Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, false);
 
 		_init_property_defaults(bullet);
+
+		bullet->animation_name = "";
+		bullet->animation_start_time = 0.0;
+		bullet->active = true;
+		bullet->modulate = kit->base_modulate_color;
 
 		Array keys = properties.keys();
 		for(int32_t i = 0; i < keys.size(); i++) {

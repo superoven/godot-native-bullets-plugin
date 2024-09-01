@@ -51,7 +51,7 @@ public:
 	bool is_player_bullet = false;
 
 	void _init() {
-		Godot::print("Resetting orig bullet! ", this);
+		// Godot::print("Resetting orig bullet! ", this);
 	}
 
 	RID get_item_rid() { return item_rid; }
@@ -80,7 +80,7 @@ public:
 
 		register_property<Bullet, Vector2>("acceleration_basis_vector", &Bullet::acceleration_basis_vector, Vector2());
 		register_property<Bullet, float_t>("acceleration_speed", &Bullet::acceleration_speed, 0.0f);
-		register_property<Bullet, float_t>("max_speed", &Bullet::max_speed, 0.0f);
+		register_property<Bullet, float_t>("max_speed", &Bullet::max_speed, std::numeric_limits<float>::max());
 
 		register_property<Bullet, String>("animation_name", &Bullet::animation_name, "");
 		register_property<Bullet, float_t>("animation_start_time", &Bullet::animation_start_time, 0.0f);

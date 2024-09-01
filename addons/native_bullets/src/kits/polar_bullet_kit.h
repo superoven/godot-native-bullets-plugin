@@ -218,9 +218,25 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 
 	void _init_property_defaults(PolarBullet* bullet) {
 		// Godot::print("Init property defaults! ", this);
-		bullet->starting_speed = 0.0f;
+
+		// Standard Bullet Properties
+		bullet->transform = Transform2D();
+		bullet->velocity = Vector2();
+		bullet->grazed = 0;
+		bullet->acceleration_basis_vector = Vector2();
+		bullet->acceleration_speed = 0.0f;
+		bullet->max_speed = std::numeric_limits<float>::max();
+		bullet->animation_name = "";
+		bullet->animation_start_time = 0.0f;
+		bullet->modulate = Color(1.0, 1.0, 1.0, 1.0);
+		bullet->glow_degree = 1.0f;
+		bullet->lifetime = 0.0f;
+		bullet->lifetime_curves_span = 1.0f;
+		bullet->data = Variant();
+		bullet->is_player_bullet = false;
 		
 		// Init Properties
+		bullet->starting_speed = 0.0f;
 		bullet->r_init = 0.0;
 		bullet->theta_offset = 0.0;
 		bullet->theta_mult = 1.0;
