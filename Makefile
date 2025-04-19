@@ -12,6 +12,7 @@ build-addons:
 .PHONY: export
 export: build export-gd export-kits
 	cp $(ADDONS_DIR)/bin/macos/libbullets.dylib $(NATIVE_BULLETS_REMOTE)/bin/macos
+	# cp $(ADDONS_DIR)/bin/win64/bullets.dll $(NATIVE_BULLETS_REMOTE)/bin/win64
 
 .PHONY: export-gd
 export-gd: $(foreach EXT,$(EXTENSIONS),$(wildcard $(ADDONS_DIR)/*.$(EXT)))

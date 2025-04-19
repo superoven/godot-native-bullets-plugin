@@ -69,9 +69,11 @@ public:
 	int32_t get_z_index() {
 		int32_t base_z_index = this->z_index;
 		// float_t theta_offset = Dictionary(this->data)["theta_offset"];
-		float_t normalized_rotation = fmod(this->theta + theta_offset, 360.0);
-		int32_t ret = (base_z_index - 1) ? (normalized_rotation <= 90.0 && normalized_rotation >= 270.0) : 1000;//(base_z_index + 1);
-		return ret;
+		return base_z_index;
+		
+		// float_t normalized_rotation = fmod(this->theta + theta_offset, 360.0);
+		// int32_t ret = (base_z_index - 1) ? (normalized_rotation <= 90.0 && normalized_rotation >= 270.0) : 1000;//(base_z_index + 1);
+		// return ret;
 	}
 
 	void set_velocity(Vector2 velocity) {
