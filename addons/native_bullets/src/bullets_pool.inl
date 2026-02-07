@@ -71,6 +71,7 @@ void AbstractBulletsPool<Kit, BulletType>::_process_animation(BulletType* bullet
 	if (bullet->animation_name == "") {
 		return;
 	}
+	// bullet->visual_modulate = base_color;
 	Node* raw_anim_node = this->get_bullets_animation(bullet->animation_name);
 	if (raw_anim_node == nullptr) {
 		String message = "Tried to find animation '{0}', but it doesn't exist."
