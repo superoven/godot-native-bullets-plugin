@@ -151,7 +151,6 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 			bullet->modulate = color;
 			VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, color);
 		}
-		// _process_animation(bullet, delta);
 
 		// Various checks for lifetime and potential cleanup
 		bullet->lifetime += delta;

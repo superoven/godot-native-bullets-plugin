@@ -348,7 +348,6 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 		_physics_process_acceleration(bullet, delta);
 		bullet->delta_velocity = bullet->velocity * delta;
 		bullet->transform.set_origin(bullet->transform.get_origin() + bullet->delta_velocity);
-		// _process_animation(bullet, delta);
 
 		if(!active_rect.has_point(bullet->get_transform().get_origin())) {
 			// Return true if the bullet should be deleted.

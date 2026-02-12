@@ -49,7 +49,6 @@ class CompositeBulletsPool : public AbstractBulletsPool<CompositeBulletKit, Bull
 
 	bool _physics_process_bullet(Bullet* bullet, float delta) {
 		_physics_process_acceleration(bullet, delta);
-		// _process_animation(bullet, delta);
 		bullet->transform.set_origin(bullet->get_transform().get_origin() + bullet->velocity * delta);
 
 		if(!active_rect.has_point(bullet->get_transform().get_origin())) {

@@ -91,7 +91,6 @@ class FollowingBulletsPool : public AbstractBulletsPool<FollowingBulletKit, Foll
 			bullet->velocity = bullet->velocity.rotated(Math::sign(rotation_to_target) * rotation_value);
 		}
 		_physics_process_acceleration(bullet, delta);
-		// _process_animation(bullet, delta);
 		// Apply velocity.
 		bullet->transform.set_origin(bullet->get_transform().get_origin() + bullet->velocity * delta);
 
