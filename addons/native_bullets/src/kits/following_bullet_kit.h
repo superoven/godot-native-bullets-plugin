@@ -79,7 +79,7 @@ class FollowingBulletsPool : public AbstractBulletsPool<FollowingBulletKit, Foll
 
 	//void _disable_bullet(FollowingBullet* bullet); Use default implementation.
 
-	bool _process_bullet(FollowingBullet* bullet, float delta) {
+	bool _physics_process_bullet(FollowingBullet* bullet, float delta) {
 		if(bullet->target_node != nullptr) {
 			// Find the rotation to the target node.
 			Vector2 to_target = bullet->target_node->get_global_position() - bullet->get_transform().get_origin();
@@ -90,8 +90,8 @@ class FollowingBulletsPool : public AbstractBulletsPool<FollowingBulletKit, Foll
 			// Apply the rotation, capped to the max turning speed.
 			bullet->velocity = bullet->velocity.rotated(Math::sign(rotation_to_target) * rotation_value);
 		}
-		_process_acceleration(bullet, delta);
-		_process_animation(bullet, delta);
+		_physics_process_acceleration(bullet, delta);
+		// _process_animation(bullet, delta);
 		// Apply velocity.
 		bullet->transform.set_origin(bullet->get_transform().get_origin() + bullet->velocity * delta);
 
@@ -108,6 +108,10 @@ class FollowingBulletsPool : public AbstractBulletsPool<FollowingBulletKit, Foll
 		bullet->lifetime += delta;
 		// Return false if the bullet should not be deleted yet.
 		return false;
+	}
+
+	void _process_bullet(FollowingBullet* bullet, float delta) {
+		_process_animation(bullet, delta);
 	}
 };
 

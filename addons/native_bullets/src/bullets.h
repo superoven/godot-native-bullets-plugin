@@ -66,6 +66,7 @@ public:
 	void _ready();
 
 	void _physics_process(float delta);
+	void _process(float delta);
 	void set_should_process(bool should_process);
 	bool get_should_process();
 

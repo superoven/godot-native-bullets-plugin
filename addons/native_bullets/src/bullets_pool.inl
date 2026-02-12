@@ -45,15 +45,21 @@ void AbstractBulletsPool<Kit, BulletType>::_disable_bullet(BulletType* bullet) {
 }
 
 template <class Kit, class BulletType>
-bool AbstractBulletsPool<Kit, BulletType>::_process_bullet(BulletType* bullet, float delta) {
-	ERR_PRINT("AbstractBulletKit needs an implementation of _process_bullet!");
+bool AbstractBulletsPool<Kit, BulletType>::_physics_process_bullet(BulletType* bullet, float delta) {
+	ERR_PRINT("AbstractBulletKit needs an implementation of _physics_process_bullet!");
 	return false;
 }
 
 template <class Kit, class BulletType>
-void AbstractBulletsPool<Kit, BulletType>::_process_acceleration(BulletType* bullet, float delta) {
+void AbstractBulletsPool<Kit, BulletType>::_physics_process_acceleration(BulletType* bullet, float delta) {
 	bullet->velocity += bullet->acceleration_basis_vector * bullet->acceleration_speed * delta;
 	bullet->velocity = bullet->velocity.clamped(bullet->max_speed);
+}
+
+template <class Kit, class BulletType>
+void AbstractBulletsPool<Kit, BulletType>::_process_bullet(BulletType* bullet, float delta) {
+	ERR_PRINT("AbstractBulletKit needs an implementation of _process_bullet!");
+	// return false;
 }
 
 template <class Kit, class BulletType>
@@ -259,7 +265,7 @@ void AbstractBulletsPool<Kit, BulletType>::_init(Node* parent_hint, RID shared_a
 }
 
 template <class Kit, class BulletType>
-int32_t AbstractBulletsPool<Kit, BulletType>::_process(float delta) {
+int32_t AbstractBulletsPool<Kit, BulletType>::_physics_process(float delta) {
 	if(kit->use_viewport_as_active_rect) {
 		Rect2 viewport_rect = viewport->get_visible_rect();
 		Transform2D viewport_inv_transform = canvas_layer ? canvas_layer->get_transform().affine_inverse() : viewport->get_canvas_transform().affine_inverse();
@@ -279,37 +285,32 @@ int32_t AbstractBulletsPool<Kit, BulletType>::_process(float delta) {
 	}
 	int32_t amount_variation = 0;
 
-	if(collisions_enabled) {
-		for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
-			BulletType* bullet = bullets[i];
-
-			if(_process_bullet(bullet, delta)) {
-				_release_bullet(i);
-				amount_variation -= 1;
-				i += 1;
-				continue;
-			}
-			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->get_visual_transform());
-			VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
-			VisualServer::get_singleton()->canvas_item_set_z_index(bullet->item_rid, bullet->get_z_index());
+	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
+		BulletType* bullet = bullets[i];
+		if(_physics_process_bullet(bullet, delta)) {
+			_release_bullet(i);
+			amount_variation -= 1;
+			i += 1;
+			continue;
+		}
+		VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->get_visual_transform());
+		VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
+		VisualServer::get_singleton()->canvas_item_set_z_index(bullet->item_rid, bullet->get_z_index());
+		if (collisions_enabled) {
 			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->get_transform());
 		}
-	} else {
-		for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
-			BulletType* bullet = bullets[i];
-
-			if(_process_bullet(bullet, delta)) {
-				_release_bullet(i);
-				amount_variation -= 1;
-				i += 1;
-				continue;
-			}
-			VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->get_visual_transform());
-			VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
-			VisualServer::get_singleton()->canvas_item_set_z_index(bullet->item_rid, bullet->get_z_index());
-		}
 	}
+
 	return amount_variation;
+}
+
+template <class Kit, class BulletType>
+void AbstractBulletsPool<Kit, BulletType>::_process(float delta) {
+	// Godot::print("Running _process inside bullets pool!");
+	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
+		BulletType* bullet = bullets[i];
+		_process_bullet(bullet, delta);
+	}
 }
 
 template <class Kit, class BulletType>
@@ -346,7 +347,8 @@ BulletID AbstractBulletsPool<Kit, BulletType>::spawn_bullet(Dictionary propertie
 			bullet->set("lifetime", properties["lifetime"]);
 		}
 
-		_process_bullet(bullet, 0.0f);  // Process the first frame of animation
+		// TODO: This is probably a bug
+		_physics_process_bullet(bullet, 0.0f);  // Process the first frame of animation
 		VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->visual_transform);
 		VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
 		VisualServer::get_singleton()->canvas_item_set_draw_index(bullet->item_rid,
@@ -489,12 +491,6 @@ void AbstractBulletsPool<Kit, BulletType>::_apply_properties(BulletType* bullet,
 		String key = keys[i];
 		Variant value = properties[keys[i]];
 		bullet->set(key, value);
-		// TODO: I think that these calls may be unnecessary _process_bullet should be handling it
-		// if(key == "transform") {
-		// 	VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, value);
-		// 	if(collisions_enabled)
-		// 		Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, value);
-		// }
 	}
 }
 

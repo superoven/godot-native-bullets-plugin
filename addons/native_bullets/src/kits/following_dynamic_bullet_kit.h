@@ -119,7 +119,7 @@ class FollowingDynamicBulletsPool : public AbstractBulletsPool<FollowingDynamicB
 
 	// void _disable_bullet(FollowingDynamicBullet* bullet); Use default implementation.
 
-	bool _process_bullet(FollowingDynamicBullet* bullet, float delta) {
+	bool _physics_process_bullet(FollowingDynamicBullet* bullet, float delta) {
 		float adjusted_lifetime = bullet->lifetime / bullet->lifetime_curves_span;
 		if(kit->lifetime_curves_loop) {
 			adjusted_lifetime = fmod(adjusted_lifetime, 1.0f);
@@ -177,8 +177,8 @@ class FollowingDynamicBulletsPool : public AbstractBulletsPool<FollowingDynamicB
 			bullet->velocity = bullet->velocity.rotated(Math::sign(rotation_to_target) * rotation_value);
 		}
 
-		_process_acceleration(bullet, delta);
-		_process_animation(bullet, delta);
+		_physics_process_acceleration(bullet, delta);
+		// _process_animation(bullet, delta);
 		bullet->transform.set_origin(bullet->get_transform().get_origin() + bullet->velocity * delta);
 
 		if(!active_rect.has_point(bullet->get_transform().get_origin())) {
@@ -198,6 +198,10 @@ class FollowingDynamicBulletsPool : public AbstractBulletsPool<FollowingDynamicB
 		}
 		// Return false if the bullet should not be deleted yet.
 		return false;
+	}
+
+	void _process_bullet(FollowingDynamicBullet* bullet, float delta) {
+		_process_animation(bullet, delta);
 	}
 };
 

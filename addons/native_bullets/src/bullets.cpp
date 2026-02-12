@@ -30,6 +30,7 @@ void Bullets::_register_methods() {
 	);
 
 	register_method("_physics_process", &Bullets::_physics_process);
+	register_method("_process", &Bullets::_process);
 	register_method("set_should_process", &Bullets::set_should_process);
 	register_method("get_should_process", &Bullets::get_should_process);
 	register_method("_ready", &Bullets::_ready);
@@ -106,9 +107,21 @@ void Bullets::_physics_process(float delta) {
 	int32_t bullets_variation = 0;
 	for(int32_t i = 0; i < pool_sets.size(); i++) {
 		for(int32_t j = 0; j < pool_sets[i].pools.size(); j++) {
-			bullets_variation = pool_sets[i].pools[j].pool->_process(delta);
+			bullets_variation = pool_sets[i].pools[j].pool->_physics_process(delta);
 			available_bullets -= bullets_variation;
 			active_bullets += bullets_variation;
+		}
+	}
+}
+
+void Bullets::_process(float delta) {
+	if(Engine::get_singleton()->is_editor_hint()) {
+		return;
+	}
+	int32_t bullets_variation = 0;
+	for(int32_t i = 0; i < pool_sets.size(); i++) {
+		for(int32_t j = 0; j < pool_sets[i].pools.size(); j++) {
+			pool_sets[i].pools[j].pool->_process(delta);
 		}
 	}
 }

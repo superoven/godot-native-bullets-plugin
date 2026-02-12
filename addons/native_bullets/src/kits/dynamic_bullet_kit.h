@@ -108,7 +108,7 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 
 	// void _disable_bullet(Bullet* bullet); Use default implementation.
 
-	bool _process_bullet(DynamicBullet* bullet, float delta) {
+	bool _physics_process_bullet(DynamicBullet* bullet, float delta) {
 		// Normalize the lifetime value
 		float_t adjusted_lifetime = bullet->lifetime / bullet->lifetime_curves_span;
 		if(kit->lifetime_curves_loop) {
@@ -129,7 +129,7 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 			bullet->velocity = bullet->velocity.rotated(offset);
 			bullet->transform.set_rotation(result);
 		}
-		_process_acceleration(bullet, delta);
+		_physics_process_acceleration(bullet, delta);
 		bullet->transform.set_origin(bullet->get_transform().get_origin() + bullet->velocity * delta);
 		if(!active_rect.has_point(bullet->get_transform().get_origin())) {
 			// Return true if the bullet should be deleted.
@@ -151,7 +151,7 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 			bullet->modulate = color;
 			VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, color);
 		}
-		_process_animation(bullet, delta);
+		// _process_animation(bullet, delta);
 
 		// Various checks for lifetime and potential cleanup
 		bullet->lifetime += delta;
@@ -161,6 +161,10 @@ class DynamicBulletsPool : public AbstractBulletsPool<DynamicBulletKit, DynamicB
 		}
 		// Return false if the bullet should not be deleted yet.
 		return false;
+	}
+
+	void _process_bullet(DynamicBullet* bullet, float delta) {
+		_process_animation(bullet, delta);
 	}
 };
 

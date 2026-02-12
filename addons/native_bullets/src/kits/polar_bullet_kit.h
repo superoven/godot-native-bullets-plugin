@@ -295,7 +295,7 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 		// 	3.0);
 	}
 
-	bool _process_bullet(PolarBullet* bullet, float delta) {
+	bool _physics_process_bullet(PolarBullet* bullet, float delta) {
 		if(bullet->r_over_lifetime.is_valid()) {
 			float_t adjusted_lifetime = bullet->lifetime / bullet->r_lifetime_span;
 			if(bullet->r_loop) {
@@ -345,10 +345,10 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 			bullet->velocity = (bullet->unit_dir_vector) * bullet->starting_speed * speed_multiplier;
 		}
 
-		_process_acceleration(bullet, delta);
+		_physics_process_acceleration(bullet, delta);
 		bullet->delta_velocity = bullet->velocity * delta;
 		bullet->transform.set_origin(bullet->transform.get_origin() + bullet->delta_velocity);
-		_process_animation(bullet, delta);
+		// _process_animation(bullet, delta);
 
 		if(!active_rect.has_point(bullet->get_transform().get_origin())) {
 			// Return true if the bullet should be deleted.
@@ -358,6 +358,11 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 		bullet->lifetime += delta;
 		// Return false if the bullet should not be deleted yet.
 		return false;
+	}
+
+	void _process_bullet(PolarBullet* bullet, float delta) {
+		// Godot::print("Running _process_bullet! {0}", bullet);
+		_process_animation(bullet, delta);
 	}
 };
 

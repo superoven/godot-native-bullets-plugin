@@ -60,7 +60,9 @@ public:
 
 	Node* get_bullets_animation(String animation_name);
 
-	virtual int32_t _process(float delta) = 0;
+	virtual int32_t _physics_process(float delta) = 0;
+
+	virtual void _process(float delta) = 0;
 
 	virtual BulletID spawn_bullet(Dictionary properties) = 0;
 	virtual bool release_bullet(BulletID id) = 0;
@@ -97,9 +99,11 @@ protected:
 	virtual inline void _init_property_defaults(BulletType* bullet);
 	virtual inline void _enable_bullet(BulletType* bullet);
 	virtual inline void _disable_bullet(BulletType* bullet);
-	virtual inline bool _process_bullet(BulletType* bullet, float delta);
-	virtual inline void _process_acceleration(BulletType* bullet, float delta);
+	virtual inline bool _physics_process_bullet(BulletType* bullet, float delta);
+	virtual inline void _physics_process_acceleration(BulletType* bullet, float delta);
 	
+	virtual inline void _process_bullet(BulletType* bullet, float delta);
+	// TODO: Deprecate this when it's fully integrated into _process_bullet
 	virtual inline void _process_animation(BulletType* bullet, float delta);
 
 	inline void _release_bullet(int32_t index);
@@ -112,7 +116,8 @@ public:
 	virtual void _init(Node* parent_hint, RID shared_area, int32_t starting_shape_index,
 		int32_t set_index, Ref<BulletKit> kit, int32_t pool_size, int32_t z_index) override;
 
-	virtual int32_t _process(float delta) override;
+	virtual int32_t _physics_process(float delta) override;
+	virtual void _process(float delta) override;
 
 	virtual BulletID spawn_bullet(Dictionary properties) override;
 	virtual bool release_bullet(BulletID id) override;

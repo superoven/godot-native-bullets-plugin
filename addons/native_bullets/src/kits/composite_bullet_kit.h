@@ -47,9 +47,9 @@ class CompositeBulletsPool : public AbstractBulletsPool<CompositeBulletKit, Bull
 
 	// void _disable_bullet(Bullet* bullet); Use default implementation.
 
-	bool _process_bullet(Bullet* bullet, float delta) {
-		_process_acceleration(bullet, delta);
-		_process_animation(bullet, delta);
+	bool _physics_process_bullet(Bullet* bullet, float delta) {
+		_physics_process_acceleration(bullet, delta);
+		// _process_animation(bullet, delta);
 		bullet->transform.set_origin(bullet->get_transform().get_origin() + bullet->velocity * delta);
 
 		if(!active_rect.has_point(bullet->get_transform().get_origin())) {
@@ -64,6 +64,10 @@ class CompositeBulletsPool : public AbstractBulletsPool<CompositeBulletKit, Bull
 		bullet->lifetime += delta;
 		// Return false if the bullet should not be deleted yet.
 		return false;
+	}
+
+	void _process_bullet(Bullet* bullet, float delta) {
+		_process_animation(bullet, delta);
 	}
 };
 
