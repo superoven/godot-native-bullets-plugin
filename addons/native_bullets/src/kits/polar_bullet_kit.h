@@ -224,7 +224,7 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 		// Standard Bullet Properties
 		bullet->transform = Transform2D();
 		bullet->velocity = Vector2();
-		bullet->grazed = 0;
+		bullet->graze_type_state = 0;
 		bullet->acceleration_basis_vector = Vector2();
 		bullet->acceleration_speed = 0.0f;
 		bullet->max_speed = std::numeric_limits<float>::max();

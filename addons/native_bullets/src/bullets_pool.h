@@ -105,6 +105,7 @@ protected:
 	virtual inline void _process_bullet(BulletType* bullet, float delta);
 	// TODO: Deprecate this when it's fully integrated into _process_bullet
 	virtual inline void _process_animation(BulletType* bullet, float delta);
+	virtual inline void _process_animation_new(BulletType* bullet, float delta);
 
 	inline void _release_bullet(int32_t index);
 	virtual void _apply_properties(BulletType* bullet, Dictionary properties);

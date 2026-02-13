@@ -9,6 +9,7 @@
 
 #include "bullets_pool.h"
 #include "bullets.h"
+#include "utils.h"
 
 using namespace godot;
 
@@ -60,6 +61,11 @@ template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::_process_bullet(BulletType* bullet, float delta) {
 	ERR_PRINT("AbstractBulletKit needs an implementation of _process_bullet!");
 	// return false;
+}
+
+template <class Kit, class BulletType>
+void AbstractBulletsPool<Kit, BulletType>::_process_animation_new(BulletType* bullet, float delta) {
+	int result = exp_decay(float(5.0), float(3.0), delta, delta);
 }
 
 template <class Kit, class BulletType>
@@ -293,9 +299,6 @@ int32_t AbstractBulletsPool<Kit, BulletType>::_physics_process(float delta) {
 			i += 1;
 			continue;
 		}
-		VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->get_visual_transform());
-		VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
-		VisualServer::get_singleton()->canvas_item_set_z_index(bullet->item_rid, bullet->get_z_index());
 		if (collisions_enabled) {
 			Physics2DServer::get_singleton()->area_set_shape_transform(shared_area, bullet->shape_index, bullet->get_transform());
 		}
@@ -310,6 +313,9 @@ void AbstractBulletsPool<Kit, BulletType>::_process(float delta) {
 	for(int32_t i = pool_size - 1; i >= available_bullets; i--) {
 		BulletType* bullet = bullets[i];
 		_process_bullet(bullet, delta);
+		VisualServer::get_singleton()->canvas_item_set_transform(bullet->item_rid, bullet->get_visual_transform());
+		VisualServer::get_singleton()->canvas_item_set_modulate(bullet->item_rid, bullet->visual_modulate);
+		VisualServer::get_singleton()->canvas_item_set_z_index(bullet->item_rid, bullet->get_z_index());
 	}
 }
 
@@ -396,7 +402,7 @@ void AbstractBulletsPool<Kit, BulletType>::_release_bullet(int32_t index) {
 	ret.set(2, set_index);
 	
 	// this->bullets_singleton->emit_signal("bullet_released", ret);
-	this->bullets_singleton->call_deferred("emit_signal", Array::make("bullet_released", ret, bullet->grazed, bullet->is_player_bullet));
+	this->bullets_singleton->call_deferred("emit_signal", Array::make("bullet_released", ret, bullet->graze_type_state, bullet->is_player_bullet));
 	
 	if(collisions_enabled)
 		Physics2DServer::get_singleton()->area_set_shape_disabled(shared_area, bullet->shape_index, true);
@@ -549,7 +555,7 @@ void AbstractBulletsPool<Kit, BulletType>::flag_for_removal() {
 		ret.set(1, bullet->cycle);
 		ret.set(2, set_index);
 		// this->bullets_singleton->emit_signal("bullet_removed", ret);
-		this->bullets_singleton->call_deferred("emit_signal", Array::make("bullet_removed", ret, bullet->grazed, bullet->is_player_bullet));
+		this->bullets_singleton->call_deferred("emit_signal", Array::make("bullet_removed", ret, bullet->graze_type_state, bullet->is_player_bullet));
 	}
 }
 
@@ -564,7 +570,7 @@ void AbstractBulletsPool<Kit, BulletType>::flag_bullet_for_removal(BulletID id) 
 		ret.set(2, set_index);
 		// this->bullets_singleton->emit_signal("bullet_removed", ret);
 		// TODO: Make it so bullets are officially part of the object and not on data
-		this->bullets_singleton->call_deferred("emit_signal", Array::make("bullet_removed", ret, bullet->grazed, bullet->is_player_bullet));
+		this->bullets_singleton->call_deferred("emit_signal", Array::make("bullet_removed", ret, bullet->graze_type_state, bullet->is_player_bullet));
 		// this->bullets_singleton->call_deferred("emit_signal", Array::make("bullet_removed", ret));
 	}
 }

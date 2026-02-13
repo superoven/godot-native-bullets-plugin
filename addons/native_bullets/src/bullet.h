@@ -28,7 +28,7 @@ public:
 	int32_t cycle = 0;
 	int32_t shape_index = -1;
 	bool active = false;
-	int grazed = 0;
+	int graze_type_state = 0;
 	Transform2D transform;
 	Transform2D visual_transform;
 	Vector2 velocity;
@@ -40,6 +40,7 @@ public:
 	float_t max_speed = std::numeric_limits<float>::max();
 	int32_t z_index = 0;
 
+	
 	Color modulate;
 	Color visual_modulate;
 	float glow_degree;
@@ -76,7 +77,7 @@ public:
 		register_property<Bullet, Transform2D>("transform", &Bullet::transform, Transform2D());
 		register_property<Bullet, Vector2>("velocity", &Bullet::velocity, Vector2());
 
-		register_property<Bullet, int32_t>("grazed", &Bullet::grazed, 0);
+		register_property<Bullet, int32_t>("graze_type_state", &Bullet::graze_type_state, 0);
 
 		register_property<Bullet, Vector2>("acceleration_basis_vector", &Bullet::acceleration_basis_vector, Vector2());
 		register_property<Bullet, float_t>("acceleration_speed", &Bullet::acceleration_speed, 0.0f);
