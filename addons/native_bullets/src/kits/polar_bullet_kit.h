@@ -224,6 +224,7 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 		// Standard Bullet Properties
 		bullet->transform = Transform2D();
 		bullet->velocity = Vector2();
+		bullet->prev_graze_type_state = 0;
 		bullet->graze_type_state = 0;
 		bullet->acceleration_basis_vector = Vector2();
 		bullet->acceleration_speed = 0.0f;
@@ -236,6 +237,14 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 		bullet->lifetime_curves_span = 1.0f;
 		bullet->data = Variant();
 		bullet->is_player_bullet = false;
+
+		// Dynamic Visual Properties
+		bullet->scale_speed = 0.0;
+		bullet->scale_val = 1.0;
+		bullet->desired_scale = 1.0;
+		bullet->glow_speed = 0.0;
+		bullet->glow_val = 0.0;
+		bullet->in_game = true;
 		
 		// Init Properties
 		bullet->starting_speed = 0.0f;
@@ -361,7 +370,7 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 
 	void _process_bullet(PolarBullet* bullet, float delta) {
 		// Godot::print("Running _process_bullet! {0}", bullet);
-		_process_animation(bullet, delta);
+		_process_animation_new(bullet, delta);
 	}
 };
 

@@ -5,10 +5,42 @@
 #include <Transform2D.hpp>
 
 #include <limits>
+#include <cassert>
 
 #include "bullets.h"
+#include "utils.h"
 
 using namespace godot;
+
+static const float BASE_GLOW_AMOUNT = 1.75;
+static const float SCALE_SPEED_HALF_LIFE = 24.0; //32.0; //16.0;
+static const float GLOW_HALF_LIFE = 8.0; //32.0;
+static const float BASE_MODULATE_HALF_LIFE = 16.0;
+
+static const std::vector<float> STATE_GLOW_BUMPS = {
+	0.4, //1.4,
+	0.3, //1.3,
+	0.2, //1.2,
+	0.0
+};
+
+static const std::vector<float> STATE_SCALE_BUMPS = {
+	1.0, //0.5,
+	1.2, //0.6,
+	1.4, //0.7,
+	0.0
+};
+
+static const std::vector<Color> STATE_COLORS = {
+	Color(0.0, 1.0, 0.0, 1.0),
+	Color(0, 0.717647, 0),
+	Color(0, 0.266667, 0),
+	Color(0, 0, 0)
+};
+
+#ifndef MAX
+#define MAX(a, b) (a > b ? a : b)
+#endif
 
 
 struct BulletID {
@@ -28,6 +60,7 @@ public:
 	int32_t cycle = 0;
 	int32_t shape_index = -1;
 	bool active = false;
+	int prev_graze_type_state = 0;
 	int graze_type_state = 0;
 	Transform2D transform;
 	Transform2D visual_transform;
@@ -40,7 +73,14 @@ public:
 	float_t max_speed = std::numeric_limits<float>::max();
 	int32_t z_index = 0;
 
-	
+	// Dynamic Visual properties
+	float_t scale_speed = 0.0;
+	float_t scale_val = 1.0;
+	float_t desired_scale = 1.0;
+	float_t glow_speed = 0.0;
+	float_t glow_val = 0.0;
+	bool in_game = true;
+
 	Color modulate;
 	Color visual_modulate;
 	float glow_degree;
@@ -98,6 +138,91 @@ public:
 		register_property<Bullet, Variant>("data", &Bullet::data, Variant());
 
 		register_property<Bullet, bool>("is_player_bullet", &Bullet::is_player_bullet, false);
+	}
+
+	float _get_desired_scale() {
+		return 1.0;
+	}
+
+	Color _get_desired_modulate() {
+		assert(graze_type_state < 4);
+		Color base_desired_modulate = STATE_COLORS[graze_type_state];
+		if (in_game) {
+			return base_desired_modulate;
+		} else {
+			return Color(base_desired_modulate.r, base_desired_modulate.g, base_desired_modulate.b, 0.0);
+		}
+	}
+
+	void _handle_state_change() {
+		assert(graze_type_state < 4);
+		assert(prev_graze_type_state < 4);
+		// assert(prev_graze_type_state <= graze_type_state);
+		while (prev_graze_type_state < graze_type_state) {
+			glow_speed += STATE_GLOW_BUMPS[prev_graze_type_state];
+			// Godot::print("Adjusting glow speed. now: {0}", glow_speed);
+			scale_speed += STATE_SCALE_BUMPS[prev_graze_type_state];
+			prev_graze_type_state += 1;
+		}
+		prev_graze_type_state = graze_type_state;
+	}
+	
+	void _handle_scale(float delta) {
+		scale_val += scale_speed;
+		float prev_scale_val = scale_val;
+		scale_val = exp_decay(
+			scale_val,
+			_get_desired_scale(),
+			SCALE_SPEED_HALF_LIFE,
+			delta
+		);
+		float diff = prev_scale_val - scale_val;
+		if (diff >= 0.0) {
+			scale_speed = MAX(scale_speed - diff, 0.0);
+		}
+	}
+
+	void _handle_glow(float delta) {
+		glow_val += glow_speed;
+		float prev_glow_val = glow_val;
+		glow_val = exp_decay(
+			glow_val,
+			0.0, // Always target equilibrium
+			GLOW_HALF_LIFE,
+			delta
+		);
+		float diff = prev_glow_val - glow_val;
+		assert(diff >= 0.0);
+		glow_speed = MAX(glow_speed - diff, 0.0);
+	}
+
+	void _handle_base_modulate(float delta) {
+		float curr_glow = BASE_GLOW_AMOUNT + glow_val;
+		Color desired_modulate = _get_desired_modulate();
+		visual_modulate.r = exp_decay(
+			visual_modulate.r,
+			desired_modulate.r * curr_glow,
+			BASE_MODULATE_HALF_LIFE,
+			delta
+		);
+		visual_modulate.g = exp_decay(
+			visual_modulate.g,
+			desired_modulate.g * curr_glow,
+			BASE_MODULATE_HALF_LIFE,
+			delta
+		);
+		visual_modulate.b = exp_decay(
+			visual_modulate.b,
+			desired_modulate.b * curr_glow,
+			BASE_MODULATE_HALF_LIFE,
+			delta
+		);
+		visual_modulate.a = exp_decay(
+			visual_modulate.a,
+			desired_modulate.a,
+			BASE_MODULATE_HALF_LIFE,
+			delta
+		);
 	}
 };
 

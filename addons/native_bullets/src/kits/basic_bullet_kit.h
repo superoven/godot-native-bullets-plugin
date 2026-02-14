@@ -31,6 +31,35 @@ class BasicBulletsPool : public AbstractBulletsPool<BasicBulletKit, Bullet> {
 
 	// void _init_bullet(Bullet* bullet); Use default implementation.
 
+	void _init_property_defaults(Bullet* bullet) {
+		// Godot::print("Init property defaults! ", this);
+
+		// Standard Bullet Properties
+		bullet->transform = Transform2D();
+		bullet->velocity = Vector2();
+		bullet->prev_graze_type_state = 0;
+		bullet->graze_type_state = 0;
+		bullet->acceleration_basis_vector = Vector2();
+		bullet->acceleration_speed = 0.0f;
+		bullet->max_speed = std::numeric_limits<float>::max();
+		bullet->animation_name = "";
+		bullet->animation_start_time = 0.0f;
+		bullet->modulate = Color(1.0, 1.0, 1.0, 1.0);
+		bullet->glow_degree = 1.0f;
+		bullet->lifetime = 0.0f;
+		bullet->lifetime_curves_span = 1.0f;
+		bullet->data = Variant();
+		bullet->is_player_bullet = false;
+
+		// Dynamic Visual Properties
+		bullet->scale_speed = 0.0;
+		bullet->scale_val = 1.0;
+		bullet->desired_scale = 1.0;
+		bullet->glow_speed = 0.0;
+		bullet->glow_val = 0.0;
+		bullet->in_game = true;
+	}
+
 	void _enable_bullet(Bullet* bullet) {
 		// Reset the bullet lifetime.
 		bullet->lifetime = 0.0f;

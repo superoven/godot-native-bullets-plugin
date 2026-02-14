@@ -6,12 +6,34 @@
 #include <Engine.hpp>
 #include <Font.hpp>
 #include <Math.hpp>
+#include <Color.hpp>
 
 #include "bullets_pool.h"
 #include "bullets.h"
 #include "utils.h"
 
 using namespace godot;
+
+// static const std::vector<float> STATE_GLOW_BUMPS = {
+// 	0.4,
+// 	0.3,
+// 	0.2,
+// 	0.0
+// };
+
+// static const std::vector<float> STATE_SCALE_BUMPS = {
+// 	0.05,
+// 	0.1,
+// 	0.15,
+// 	0.0
+// };
+
+// static const std::vector<Color> STATE_COLORS = {
+// 	Color(0.0, 1.0, 0.0, 1.0),
+// 	Color(0, 0.717647, 0),
+// 	Color(0, 0.266667, 0),
+// 	Color(0, 0, 0)
+// };
 
 
 //-- START Default "standard" implementations.
@@ -65,7 +87,13 @@ void AbstractBulletsPool<Kit, BulletType>::_process_bullet(BulletType* bullet, f
 
 template <class Kit, class BulletType>
 void AbstractBulletsPool<Kit, BulletType>::_process_animation_new(BulletType* bullet, float delta) {
-	int result = exp_decay(float(5.0), float(3.0), delta, delta);
+	bullet->_handle_state_change();
+	bullet->_handle_scale(delta);
+	bullet->_handle_glow(delta);
+	bullet->_handle_base_modulate(delta);
+	Transform2D base_transform = bullet->get_transform();
+	// bullet->visual_transform = base_transform.scaled(Size2(bullet->scale_val, bullet->scale_val));
+	bullet->visual_transform = _transform_set_scale(base_transform, Vector2(bullet->scale_val, bullet->scale_val));
 }
 
 template <class Kit, class BulletType>
