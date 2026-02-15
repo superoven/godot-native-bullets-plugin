@@ -53,12 +53,20 @@ class BasicBulletsPool : public AbstractBulletsPool<BasicBulletKit, Bullet> {
 
 		// Dynamic Visual Properties
 		bullet->scale_speed = 0.0;
-		bullet->scale_val = 1.0;
+		bullet->scale_val = 1.0; // No scale animation in
 		bullet->desired_scale = 1.0;
 		bullet->glow_speed = 0.0;
 		bullet->glow_val = 0.0;
 		bullet->in_game = true;
 	}
+
+	// Color _get_desired_modulate() {
+	// 	if (in_game) {
+	// 		return Color(1.0, 1.0, 1.0, 1.0);
+	// 	} else {
+	// 		return Color(1.0, 1.0, 1.0, 0.0);
+	// 	}
+	// }
 
 	void _enable_bullet(Bullet* bullet) {
 		// Reset the bullet lifetime.
@@ -104,7 +112,7 @@ class BasicBulletsPool : public AbstractBulletsPool<BasicBulletKit, Bullet> {
 	}
 
 	void _process_bullet(Bullet* bullet, float delta) {
-		_process_animation(bullet, delta);
+		_process_animation_new(bullet, delta);
 	}
 };
 

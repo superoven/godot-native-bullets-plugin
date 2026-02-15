@@ -240,7 +240,8 @@ class PolarBulletsPool : public AbstractBulletsPool<PolarBulletKit, PolarBullet>
 
 		// Dynamic Visual Properties
 		bullet->scale_speed = 0.0;
-		bullet->scale_val = 1.0;
+		// bullet->scale_val = 1.0;
+		bullet->scale_val = MAX_OUT_SCALE; // Handle in animation by default
 		bullet->desired_scale = 1.0;
 		bullet->glow_speed = 0.0;
 		bullet->glow_val = 0.0;

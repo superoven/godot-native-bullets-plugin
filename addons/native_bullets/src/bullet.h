@@ -16,6 +16,7 @@ static const float BASE_GLOW_AMOUNT = 1.75;
 static const float SCALE_SPEED_HALF_LIFE = 24.0; //32.0; //16.0;
 static const float GLOW_HALF_LIFE = 8.0; //32.0;
 static const float BASE_MODULATE_HALF_LIFE = 16.0;
+static const float MAX_OUT_SCALE = 4.5; //6.0; //3.0; //10.0; //3.0;
 
 static const std::vector<float> STATE_GLOW_BUMPS = {
 	0.4, //1.4,
@@ -138,15 +139,20 @@ public:
 		register_property<Bullet, Variant>("data", &Bullet::data, Variant());
 
 		register_property<Bullet, bool>("is_player_bullet", &Bullet::is_player_bullet, false);
+		register_property<Bullet, bool>("in_game", &Bullet::in_game, true);
 	}
 
 	float _get_desired_scale() {
-		return 1.0;
+		if (in_game) {
+			return 1.0;
+		} else {
+			return MAX_OUT_SCALE;
+		}
 	}
 
 	Color _get_desired_modulate() {
 		assert(graze_type_state < 4);
-		Color base_desired_modulate = STATE_COLORS[graze_type_state];
+		Color base_desired_modulate = is_player_bullet ? Color(1.0, 1.0, 1.0, 0.6) : STATE_COLORS[graze_type_state];
 		if (in_game) {
 			return base_desired_modulate;
 		} else {
@@ -197,7 +203,7 @@ public:
 	}
 
 	void _handle_base_modulate(float delta) {
-		float curr_glow = BASE_GLOW_AMOUNT + glow_val;
+		float curr_glow = (!is_player_bullet) ? BASE_GLOW_AMOUNT + glow_val : 1.0;
 		Color desired_modulate = _get_desired_modulate();
 		visual_modulate.r = exp_decay(
 			visual_modulate.r,
