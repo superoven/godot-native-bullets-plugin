@@ -34,8 +34,11 @@ static const std::vector<float> STATE_SCALE_BUMPS = {
 
 static const std::vector<Color> STATE_COLORS = {
 	Color(0.0, 1.0, 0.0, 1.0),
-	Color(0, 0.717647, 0),
-	Color(0, 0.266667, 0),
+	// Color(0, 0.717647, 0),
+	// Color(0, 0.37941199999999997, 0),
+	Color(0, 0.3, 0),
+	// Color(0, 0.266667, 0),
+	Color(0, 0.1333335, 0),
 	Color(0, 0, 0)
 };
 
